@@ -1,0 +1,9 @@
+# General
+log/
+*.log
+
+# Node
+npm-debug.log
+
+# Windows
+Thumbs.db
