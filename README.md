@@ -2,6 +2,8 @@
 
 ## [diff-so-fancy](https://github.com/so-fancy/diff-so-fancy)
 
+### Install
+
 ```
 npm install -g diff-so-fancy
 ```
