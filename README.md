@@ -1,9 +1,17 @@
 # dotfiles
 
-## diff-so-fancy
+## [diff-so-fancy](https://github.com/so-fancy/diff-so-fancy)
 
 ```
 npm install -g diff-so-fancy
+```
+
+## [Fira Code](https://github.com/tonsky/FiraCode)
+
+### Install
+
+```
+choco install -y firacode-ttf
 ```
 
 ## Git Configuration
