@@ -1,10 +1,12 @@
 # dotfiles
 
+My Windows 10 environment and some settings that I use.
+
 ## [diff-so-fancy](https://github.com/so-fancy/diff-so-fancy)
 
 ### Install
 
-```
+```bash
 npm install -g diff-so-fancy
 ```
 
@@ -12,7 +14,7 @@ npm install -g diff-so-fancy
 
 ### Install
 
-```
+```bash
 choco install -y firacode-ttf
 ```
 
@@ -20,13 +22,13 @@ choco install -y firacode-ttf
 
 ### Config SymbolicLink
 
-```
+```powershell
 New-Item -Path "C:\Users\Liam\.gitconfig" -ItemType SymbolicLink -Value "C:\Projects\dotfiles\git\.gitconfig" -Force
 ```
 
 ### Ignore SymbolicLink
 
-```
+```powershell
 New-Item -Path "C:\Users\Liam\.gitignore_global" -ItemType SymbolicLink -Value "C:\Projects\dotfiles\git\.gitignore_global" -Force
 ```
 
@@ -34,7 +36,7 @@ New-Item -Path "C:\Users\Liam\.gitignore_global" -ItemType SymbolicLink -Value "
 
 ### Custom Scheme
 
-```
+```bash
 #373D48,#303641,#5294E2,#FFFFFF,#4A5664,#FFFFFF,#5294E2,#5294E2
 ```
 
@@ -42,6 +44,6 @@ New-Item -Path "C:\Users\Liam\.gitignore_global" -ItemType SymbolicLink -Value "
 
 ### Settings SymbolicLink
 
-```
+```powershell
 New-Item -Path "C:\Users\Liam\AppData\Roaming\Code\User\settings.json" -ItemType SymbolicLink -Value "C:\Projects\dotfiles\vscode\settings.json" -Force
 ```
