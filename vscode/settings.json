@@ -5,5 +5,6 @@
   "editor.tabSize": 2,
   "editor.detectIndentation": false,
   "extensions.ignoreRecommendations": true,
-  "workbench.startupEditor": "newUntitledFile"
+  "workbench.startupEditor": "newUntitledFile",
+  "workbench.colorTheme": "Material Theme Palenight High Contrast"
 }
