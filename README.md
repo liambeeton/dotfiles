@@ -47,3 +47,9 @@ New-Item -Path "C:\Users\Liam\.gitignore_global" -ItemType SymbolicLink -Value "
 ```powershell
 New-Item -Path "C:\Users\Liam\AppData\Roaming\Code\User\settings.json" -ItemType SymbolicLink -Value "C:\Projects\dotfiles\vscode\settings.json" -Force
 ```
+
+## SSH Key
+
+```bash
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+```
