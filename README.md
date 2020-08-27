@@ -15,7 +15,7 @@ npm install -g diff-so-fancy
 ### Install
 
 ```bash
-choco install -y firacode-ttf
+choco install firacode -y
 ```
 
 ## Git
