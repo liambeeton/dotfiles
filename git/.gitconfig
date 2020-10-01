@@ -53,6 +53,8 @@
   stl = ls-files -m -o --exclude-standard
   sts = status -sb
   unstage = reset --hard HEAD
+  rb = rebase -i master
+  rc = reset HEAD~1
 
 [diff]
   renames = copies
