@@ -6,7 +6,7 @@ My Windows 10 environment and some settings that I use.
 
 ### Install
 
-```bash
+```sh
 npm install -g diff-so-fancy
 ```
 
@@ -14,7 +14,7 @@ npm install -g diff-so-fancy
 
 ### Install
 
-```bash
+```sh
 choco install firacode -y
 ```
 
@@ -36,8 +36,12 @@ New-Item -Path "C:\Users\Liam\.gitignore_global" -ItemType SymbolicLink -Value "
 
 ### Custom Scheme
 
-```bash
+```sh
 #373D48,#303641,#5294E2,#FFFFFF,#4A5664,#FFFFFF,#5294E2,#5294E2
+```
+
+```sh
+#282A36,#44475A,#44475A,#50FA7B,#6272A4,#FFFFFF,#50FA7B,#FF5555
 ```
 
 ## Visual Studio Code
@@ -50,6 +54,14 @@ New-Item -Path "C:\Users\Liam\AppData\Roaming\Code\User\settings.json" -ItemType
 
 ## SSH Key
 
-```bash
+### Generate Key
+
+```sh
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+```
+
+### Config SymbolicLink
+
+```powershell
+New-Item -Path "C:\Users\Liam\.ssh\config" -ItemType SymbolicLink -Value "C:\Projects\dotfiles\ssh\config" -Force
 ```
