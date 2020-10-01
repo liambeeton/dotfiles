@@ -1,8 +1,14 @@
-Host *
-IdentityFile ~/.ssh/id_rsa
+Host github_liambeeton
+  HostName github.com
+  IdentityFile ~/.ssh/github_id_rsa
+  IdentitiesOnly yes
 
-Host *.github.*
-IdentityFile ~/.ssh/github_id.rsa
+Host devops_liambeeton
+  HostName ssh.dev.azure.com
+  IdentityFile ~/.ssh/id_rsa
+  IdentitiesOnly yes
 
-Host *.visualstudio.com
-IdentityFile ~/.ssh/visualstudio_id.rsa
+Host devops_hollard
+  HostName vs-ssh.visualstudio.com
+  IdentityFile ~/.ssh/visualstudio_id_rsa
+  IdentitiesOnly yes
