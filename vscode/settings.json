@@ -9,8 +9,14 @@
   "workbench.colorTheme": "Material Theme Palenight High Contrast",
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[javascript]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "window.zoomLevel": 0
+  "window.zoomLevel": 0,
+  "azureResourceManagerTools.parameterFiles": {
+    "c:\\projects\\fuse-digital\\employee-portal-demo\\deploy\\azureresourcegroup.infrastructure\\websitesqldatabase.json": "websitesqldatabase.parameters.json",
+    "c:\\projects\\hollard\\employee-offboarding\\deploy\\azureresourcegroup.infrastructure\\websitesqldatabase.json": "websitesqldatabase.parameters.json",
+    "c:\\projects\\hollard\\employee-offboarding\\deploy\\azureresourcegroup.infrastructure\\azureresources.json": "azureresources.parameters.json"
+  }
 }
