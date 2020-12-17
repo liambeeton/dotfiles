@@ -18,5 +18,7 @@
     "c:\\projects\\fuse-digital\\employee-portal-demo\\deploy\\azureresourcegroup.infrastructure\\websitesqldatabase.json": "websitesqldatabase.parameters.json",
     "c:\\projects\\hollard\\employee-offboarding\\deploy\\azureresourcegroup.infrastructure\\websitesqldatabase.json": "websitesqldatabase.parameters.json",
     "c:\\projects\\hollard\\employee-offboarding\\deploy\\azureresourcegroup.infrastructure\\azureresources.json": "azureresources.parameters.json"
-  }
+  },
+  "editor.minimap.enabled": true,
+  "typescript.updateImportsOnFileMove.enabled": "always"
 }
