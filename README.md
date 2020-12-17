@@ -65,3 +65,12 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 ```powershell
 New-Item -Path "C:\Users\Liam\.ssh\config" -ItemType SymbolicLink -Value "C:\Projects\dotfiles\ssh\config" -Force
 ```
+
+## Windows Terminal
+
+### Posh Git
+
+```sh
+Install-Module posh-git -Scope CurrentUser
+Install-Module oh-my-posh -Scope CurrentUser
+```
