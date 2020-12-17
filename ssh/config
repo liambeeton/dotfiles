@@ -5,10 +5,15 @@ Host github_liambeeton
 
 Host devops_liambeeton
   HostName ssh.dev.azure.com
-  IdentityFile ~/.ssh/id_rsa
+  IdentityFile ~/.ssh/liambeeton_id_rsa
   IdentitiesOnly yes
 
 Host devops_hollard
   HostName vs-ssh.visualstudio.com
-  IdentityFile ~/.ssh/visualstudio_id_rsa
+  IdentityFile ~/.ssh/hollard_id_rsa
+  IdentitiesOnly yes
+
+Host devops_fusedigital
+  HostName vs-ssh.visualstudio.com
+  IdentityFile ~/.ssh/fusedigital_id_rsa
   IdentitiesOnly yes
