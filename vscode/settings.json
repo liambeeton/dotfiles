@@ -6,7 +6,7 @@
   "editor.detectIndentation": false,
   "extensions.ignoreRecommendations": true,
   "workbench.startupEditor": "newUntitledFile",
-  "workbench.colorTheme": "Material Theme Palenight High Contrast",
+  "workbench.colorTheme": "Community Material Theme Palenight High Contrast",
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
