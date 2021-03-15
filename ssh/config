@@ -3,6 +3,11 @@ Host github_liambeeton
   IdentityFile ~/.ssh/github_id_rsa
   IdentitiesOnly yes
 
+Host gitlab_liambeeton
+  HostName git.cloud.ibm.com
+  IdentityFile ~/.ssh/gitlab_id_rsa
+  IdentitiesOnly yes
+
 Host devops_liambeeton
   HostName ssh.dev.azure.com
   IdentityFile ~/.ssh/liambeeton_id_rsa
