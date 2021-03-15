@@ -81,15 +81,9 @@ NB: code $PROFILE
 
 ```sh
 "colorScheme": "Monokai Night",
-"fontFace": "Cascadia Code PL",
+"fontFace": "CaskaydiaCove NF",
 "fontSize": 12,
 "startingDirectory": "C:\\Projects"
 ```
 
-## [Cascadia Code Font](https://github.com/microsoft/cascadia-code)
-
-### Install
-
-```sh
-choco install cascadiafonts -y
-```
+Reference: https://www.hanselman.com/blog/taking-your-powershell-prompt-to-the-next-level-with-windows-terminal-and-oh-my-posh-3
