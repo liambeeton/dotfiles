@@ -1,24 +1,24 @@
 {
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.fontFamily": "Fira Code",
   "editor.fontSize": 14,
   "editor.fontLigatures": true,
+  "editor.formatOnSave": true,
+  "editor.minimap.enabled": true,
   "editor.tabSize": 2,
   "editor.detectIndentation": false,
-  "extensions.ignoreRecommendations": true,
-  "workbench.startupEditor": "newUntitledFile",
-  "workbench.colorTheme": "Community Material Theme Palenight High Contrast",
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "extensions.ignoreRecommendations": true,
+  "prettier.htmlWhitespaceSensitivity": "ignore",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "workbench.startupEditor": "newUntitledFile",
+  "workbench.colorTheme": "Community Material Theme Palenight High Contrast",
+  "window.zoomLevel": 0,
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "window.zoomLevel": 0,
-  "azureResourceManagerTools.parameterFiles": {
-    "c:\\projects\\fuse-digital\\employee-portal-demo\\deploy\\azureresourcegroup.infrastructure\\websitesqldatabase.json": "websitesqldatabase.parameters.json",
-    "c:\\projects\\hollard\\employee-offboarding\\deploy\\azureresourcegroup.infrastructure\\websitesqldatabase.json": "websitesqldatabase.parameters.json",
-    "c:\\projects\\hollard\\employee-offboarding\\deploy\\azureresourcegroup.infrastructure\\azureresources.json": "azureresources.parameters.json"
-  },
-  "editor.minimap.enabled": true,
-  "typescript.updateImportsOnFileMove.enabled": "always"
+  "[html]": {
+    "editor.formatOnSave": false
+  }
 }
