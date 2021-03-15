@@ -13,7 +13,7 @@
   "prettier.htmlWhitespaceSensitivity": "ignore",
   "typescript.updateImportsOnFileMove.enabled": "always",
   "workbench.startupEditor": "newUntitledFile",
-  "workbench.colorTheme": "Community Material Theme Palenight High Contrast",
+  "workbench.colorTheme": "Winter is Coming (Dark Blue)",
   "window.zoomLevel": 0,
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
