@@ -74,3 +74,22 @@ New-Item -Path "C:\Users\Liam\.ssh\config" -ItemType SymbolicLink -Value "C:\Pro
 Install-Module posh-git -Scope CurrentUser
 Install-Module oh-my-posh -Scope CurrentUser
 ```
+
+NB: code $PROFILE
+
+### Settings
+
+```sh
+"colorScheme": "Monokai Night",
+"fontFace": "Cascadia Code PL",
+"fontSize": 12,
+"startingDirectory": "C:\\Projects"
+```
+
+## [Cascadia Code Font](https://github.com/microsoft/cascadia-code)
+
+### Install
+
+```sh
+choco install cascadiafonts -y
+```
