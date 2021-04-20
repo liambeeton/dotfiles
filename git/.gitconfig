@@ -6,7 +6,7 @@
   user = liambeeton
 
 [core]
-  excludesfile = C:\\Users\\Liam\\.gitignore_global
+  excludesfile = ~/.gitignore_global
   editor = code --wait
   filemode = false
   trustctime = false
