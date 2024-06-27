@@ -1,0 +1,28 @@
+# Title (50 characters or less)
+
+# Description
+# Explain the what and why of this change.
+# Provide context and the motivation for this change.
+# If this change fixes an issue, include the issue number.
+
+# List of changes
+# - Itemize the changes made in this commit.
+# - Be concise but specific.
+# - Use bullet points for clarity.
+
+# Additional Notes
+# Include any additional information or context that might be useful.
+# Mention any dependencies or prerequisites.
+
+# References
+# Include links to any relevant documents or tickets.
+# For example:
+# - JIRA ticket: [JIRA-123](http://jira.example.com/browse/JIRA-123)
+# - Design document: [Doc](http://example.com/design-doc)
+
+# --- Instructions (these lines will be ignored) ---
+# Please use the present tense ("Add feature" not "Added feature").
+# Please use the imperative mood ("Move cursor to..." not "Moves cursor to...").
+# Please keep lines to 72 characters or less.
+# Remove any lines starting with `#` to include them in the commit message.
+# --- End of Instructions ---
