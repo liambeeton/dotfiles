@@ -3,7 +3,7 @@
 # Exit on first error
 set -e
 
-COMPUTER_NAME="HP-LaserJet-M604"
+COMPUTER_NAME="Nomad"
 
 # Set computer name (as done via System Preferences → Sharing)
 sudo scutil --set ComputerName "$COMPUTER_NAME"

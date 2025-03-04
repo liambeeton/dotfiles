@@ -10,8 +10,16 @@ plugins=(
   direnv
   git
   kubectl
+  pyenv
   z
+  zsh-autosuggestions
+  zsh-syntax-highlighting
 )
+
+# load zsh completions plugin
+fpath+=${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions/src
+
+source $ZSH/oh-my-zsh.sh
 
 # get machine's ip address
 alias ip="ipconfig getifaddr en0"
@@ -31,36 +39,30 @@ alias sshconfig="code ~/.ssh/config"
 # edit global git configuration
 alias gitconfig="code ~/.gitconfig"
 
+# custom aliases
+alias dev="cd ~/Developer"
+
 # git aliases
 alias gits="git status"
 alias gitd="git diff"
 alias gitl="git lg"
 alias gita="git add ."
 alias gitc="cz commit"
-alias gitu="git config --local user.name \"Liam Beeton\""
-alias gite="git config --local user.email \"liam.beeton@gmail.com\""
+alias gitf='git commit --fixup $(git log -1 --format=%H)'
+alias gitm='git branch --merged | egrep -v "(^\\*|main|master|develop)" | xargs -n 1 git branch -d'
 
 # docker aliases
 alias docu="docker-compose up"
 alias docb="docker-compose build"
 alias docd="docker-compose down -v"
+alias docs='docker stop $(docker ps -a -q)'
+alias docr='docker rm $(docker ps -a -q)'
 
 # hosts config
 alias hostsconfig="sudo code /etc/hosts"
 
 # count lines of code
 alias loc="npx sloc --format cli-table --format-option head --exclude 'build|\.svg$\.xml' ./"
-
-# use zsh-completions
-autoload -Uz compinit && compinit
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-fpath=(~/.zsh/zsh-completions/src $fpath)
-
-# use zsh-suggestions
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# use zsh-syntax-highlighting
-source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # use z command
 source ~/z.sh
@@ -84,8 +86,11 @@ export PATH="$PATH:$GOROOT/bin"
 export PATH="$HOME/.jenv/bin:$PATH"
 eval "$(jenv init -)"
 
-# use python
-export PATH="$HOME/.pyenv/shims:$PATH"
+# use pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - zsh)"
+eval "$(pyenv virtualenv-init -)"
 
 # use rust
 export PATH="$HOME/.cargo/env:$PATH"

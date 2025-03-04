@@ -1,18 +1,23 @@
 {
+  "editor.lightbulb.enabled": "off",
   "editor.cursorBlinking": "solid",
-  "editor.cursorStyle": "block",
+  "editor.cursorStyle": "line",
+  "editor.cursorWidth": 2,
   "window.titleBarStyle": "native",
   "window.customTitleBarVisibility": "never",
   "window.title": "${rootName}${separator}${activeEditorShort}",
   "files.trimTrailingWhitespace": true,
   "explorer.confirmDelete": false,
   "explorer.compactFolders": false,
-  "workbench.colorTheme": "GitHub Dark Default",
   "workbench.sideBar.location": "right",
   "workbench.startupEditor": "none",
   "workbench.statusBar.visible": true,
   "workbench.editor.enablePreview": false,
   "workbench.editor.restoreViewState": true,
+  "workbench.activityBar.location": "hidden",
+  "workbench.colorTheme": "GitHub Dark Default",
+  "workbench.iconTheme": "vscode-icons",
+  "terminal.integrated.fontSize": 14,
   "terminal.integrated.fontFamily": "Hack Nerd Font Mono",
   "editor.find.addExtraSpaceOnTop": true,
   "editor.padding.top": 36,
@@ -28,27 +33,24 @@
   "editor.minimap.enabled": false,
   "editor.lineNumbers": "on",
   "editor.find.seedSearchStringFromSelection": "never",
+  // custom user settings
   "breadcrumbs.enabled": false,
-  "security.workspace.trust.emptyWindow": false,
-	"security.workspace.trust.enabled": false,
-	"security.workspace.trust.startupPrompt": "always",
-	"security.workspace.trust.banner": "never",
-	"extensions.ignoreRecommendations": true,
-  "workbench.iconTheme": "vscode-icons",
+  "security.workspace.trust.enabled": false,
+  "extensions.ignoreRecommendations": true,
   "vsicons.dontShowNewVersionMessage": true,
   "redhat.telemetry.enabled": false,
   // line highlight
   "editor.renderLineHighlight": "all",
   "workbench.colorCustomizations": {
-    "editor.lineHighlightBackground": "#223851"
+    "editor.lineHighlightBackground": "#102032",
+    "editorCursor.foreground": "#ffffff",
+    "terminalCursor.foreground": "#ffffff"
   },
   // syntax highlighting
   "files.associations": {
     ".env*": "makefile"
   },
   // prettier
-  "prettier.singleQuote": true,
-  "prettier.printWidth": 70,
   "editor.formatOnSave": true,
   "[markdown]": {
     "editor.formatOnSave": false
@@ -89,13 +91,14 @@
   ],
   "javascript.validate.enable": false,
   "javascript.updateImportsOnFileMove.enabled": "prompt",
+  "typescript.preferences.autoImportFileExcludePatterns": ["@radix-ui"],
   "typescript.updateImportsOnFileMove.enabled": "never",
+  "debug.javascript.codelens.npmScripts": "never",
   "explorer.confirmDragAndDrop": false,
   "js/ts.implicitProjectConfig.checkJs": true,
   "editor.formatOnPaste": true,
   "editor.formatOnType": true,
   "editor.inlineSuggest.enabled": true,
-  "mui-snippets.importPaths": "second level",
   "gitlens.advanced.messages": {
     "suppressCommitHasNoPreviousCommitWarning": true
   },
@@ -105,10 +108,44 @@
     "markdown": true,
     "scminput": false
   },
+  "github.copilot.advanced": {},
+  "github.copilot.editor.enableAutoCompletions": true,
   "git.openRepositoryInParentFolders": "never",
-  "workbench.activityBar.location": "hidden",
-  "typescript.preferences.autoImportFileExcludePatterns": [
-    "@radix-ui"
+  "todohighlight.isEnable": true,
+  "todohighlight.isCaseSensitive": true,
+  "todohighlight.keywords": [
+    {
+      "text": "ctx.prisma.stripeIntegration",
+      "color": "red",
+      "border": "1px solid red",
+      "borderRadius": "4px",
+      "backgroundColor": "rgba(0,0,0,.2)",
+      "isWholeLine": false
+    },
+    {
+      "text": "adminProcedure",
+      "color": "red",
+      "border": "1px solid red",
+      "borderRadius": "4px",
+      "backgroundColor": "rgba(0,0,0,.2)",
+      "isWholeLine": false
+    },
+    {
+      "text": "authProcedure",
+      "color": "red",
+      "border": "1px solid red",
+      "borderRadius": "4px",
+      "backgroundColor": "rgba(0,0,0,.2)",
+      "isWholeLine": false
+    },
+    {
+      "text": "publicProcedure",
+      "color": "green",
+      "border": "1px solid green",
+      "borderRadius": "4px",
+      "backgroundColor": "rgba(0,0,0,.2)",
+      "isWholeLine": false
+    }
   ],
   "cSpell.enableFiletypes": [
     "!asciidoc",
@@ -132,6 +169,7 @@
     "!jsonc",
     "!jupyter",
     "!less",
+    "!prisma",
     "!php",
     "!pug",
     "!python",
@@ -147,5 +185,35 @@
     "!yaml",
     "!yml",
     "mdx"
-  ]
+  ],
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "name": "envKeys",
+        "scope": "string.quoted.single.ini,constant.numeric.ini,string.quoted.double.ini",
+        "settings": {
+          "foreground": "#19354900"
+        }
+      },
+      {
+        "name": "envKeys",
+        "scope": "string.quoted.single.ini,constant.numeric.ini,string.quoted.double.ini",
+        "settings": {
+          "foreground": "#19354900"
+        }
+      },
+      {
+        "name": "envKeys",
+        "scope": "string.quoted.single.ini,constant.numeric.ini,string.quoted.double.ini",
+        "settings": {
+          "foreground": "#19354900"
+        }
+      }
+    ]
+  },
+  "diffEditor.ignoreTrimWhitespace": false,
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "go.toolsManagement.autoUpdate": true
 }

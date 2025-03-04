@@ -17,11 +17,13 @@ packages=(
   eslint
   http-server
   nodemon
+  pnpm
   release-it
   spot
   svgo
   tldr
   vtop
+  yarn
 )
 
 npm install -g "${packages[@]}"

@@ -22,6 +22,8 @@ extensions=(
   tombonnike.vscode-status-bar-format-toggle
   vscode-icons-team.vscode-icons
   yoavbls.pretty-ts-errors
+  sirmspencer.vscode-autohide
+  unifiedjs.vscode-mdx
 )
 
 for i in ${extensions[@]}; do

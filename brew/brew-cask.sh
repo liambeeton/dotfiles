@@ -7,7 +7,6 @@ casks=(
   1password
   android-studio
   arq
-  azure-data-studio
   bartender
   cloudflare-warp
   discord
@@ -16,16 +15,15 @@ casks=(
   font-hack-nerd-font
   google-chrome
   insomnia
-  intellij-idea-ce
   iterm2
+  jetbrains-toolbox
   maccy
-  #microsoft-office
   ngrok
   notion
   raycast
   rectangle
   signal
-  #slack
+  slack
   spotify
   telegram
   tor-browser

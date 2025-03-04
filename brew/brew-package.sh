@@ -14,6 +14,7 @@ packages=(
   eza
   git
   git-delta
+  git-lfs
   go
   golangci-lint
   gotestsum
@@ -29,9 +30,8 @@ packages=(
   mkcert
   nmap
   openssl@3
-  pnpm
-  podman
   pyenv
+  pyenv-virtualenv
   redis
   ripgrep
   rustup-init
@@ -40,7 +40,6 @@ packages=(
   tgenv
   volta
   wget
-  yarn
   ykman
 )
 
