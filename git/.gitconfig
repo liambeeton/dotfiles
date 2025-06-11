@@ -32,9 +32,15 @@
   tool = vscode  # Use Visual Studio Code as the merge tool
   conflictstyle = diff3
 
+[mergetool "vscode"]
+  cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
+
 [diff]
   tool = vscode  # Use Visual Studio Code as the diff tool
   colorMoved = default
+
+[difftool "vscode"]
+  cmd = code --wait --diff $LOCAL $REMOTE
 
 [push]
   default = simple  # Push only the current branch
@@ -90,9 +96,3 @@
   line-numbers = true
   navigate = true  # Allow navigation in delta diffs
   side-by-side = true
-
-[difftool "vscode"]
-  cmd = code --wait --diff $LOCAL $REMOTE
-
-[mergetool "vscode"]
-  cmd = code --wait $MERGED

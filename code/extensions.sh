@@ -24,6 +24,7 @@ extensions=(
   yoavbls.pretty-ts-errors
   sirmspencer.vscode-autohide
   unifiedjs.vscode-mdx
+  ms-vscode.vscode-typescript-next
 )
 
 for i in ${extensions[@]}; do

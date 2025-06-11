@@ -49,17 +49,18 @@ alias gitl="git lg"
 alias gita="git add ."
 alias gitc="cz commit"
 alias gitf='git commit --fixup $(git log -1 --format=%H)'
-alias gitm='git branch --merged | egrep -v "(^\\*|main|master|develop)" | xargs -n 1 git branch -d'
+alias gitn='git branch | grep -v "develop" | grep -v "master" | grep -v "main" | xargs git branch -D'
 
 # docker aliases
-alias docu="docker-compose up"
+alias docv="docker ps -a"
+alias docu="docker-compose up --build"
 alias docb="docker-compose build"
 alias docd="docker-compose down -v"
 alias docs='docker stop $(docker ps -a -q)'
 alias docr='docker rm $(docker ps -a -q)'
 
 # hosts config
-alias hostsconfig="sudo code /etc/hosts"
+alias hostsconfig="sudo nano /etc/hosts"
 
 # count lines of code
 alias loc="npx sloc --format cli-table --format-option head --exclude 'build|\.svg$\.xml' ./"
@@ -67,14 +68,18 @@ alias loc="npx sloc --format cli-table --format-option head --exclude 'build|\.s
 # use z command
 source ~/z.sh
 
+# use dotnet
+export DOTNET_ROOT=$HOME/.dotnet
+export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools
+
+# use dotnet x64
+alias dotnetx64="/usr/local/share/dotnet/x64/dotnet"
+
 # use android
 export ANDROID_HOME="~/Library/Android/sdk"
 export PATH="$ANDROID_HOME/platform-tools:$PATH"
 export PATH="$ANDROID_HOME/tools:$PATH"
 export PATH="$ANDROID_HOME/tools/bin:$PATH"
-
-# use dotnet
-export PATH="$PATH:/usr/local/share/dotnet"
 
 # use golang
 export GOPATH="$HOME/go"
@@ -86,18 +91,19 @@ export PATH="$PATH:$GOROOT/bin"
 export PATH="$HOME/.jenv/bin:$PATH"
 eval "$(jenv init -)"
 
-# use pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init - zsh)"
-eval "$(pyenv virtualenv-init -)"
-
 # use rust
 export PATH="$HOME/.cargo/env:$PATH"
 
 # use volta
 export VOLTA_HOME="$HOME/.volta"
 export PATH="$VOLTA_HOME/bin:$PATH"
+
+# pnpm
+export PNPM_HOME="/Users/liam/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
 
 # use direnv
 eval "$(direnv hook zsh)"

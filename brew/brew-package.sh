@@ -10,7 +10,6 @@ packages=(
   difftastic
   direnv
   dive
-  dotnet
   eza
   git
   git-delta
@@ -29,15 +28,15 @@ packages=(
   minikube
   mkcert
   nmap
+  ollama
   openssl@3
-  pyenv
-  pyenv-virtualenv
   redis
   ripgrep
   rustup-init
   starship
   tfenv
   tgenv
+  uv
   volta
   wget
   ykman

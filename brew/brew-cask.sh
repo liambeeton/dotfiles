@@ -8,6 +8,7 @@ casks=(
   android-studio
   arq
   bartender
+  charles
   cloudflare-warp
   discord
   docker
@@ -20,6 +21,7 @@ casks=(
   maccy
   ngrok
   notion
+  postman
   raycast
   rectangle
   signal
