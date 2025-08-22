@@ -55,7 +55,7 @@
   prune = true  # Prune local branches that have been removed from the remote
 
 [rerere]
-  enabled = true  # Enable reuse recorded resolution of conflicts
+  enabled = false  # Enable reuse recorded resolution of conflicts
 
 [pull]
   rebase = false  # Disable automatic rebasing on pull

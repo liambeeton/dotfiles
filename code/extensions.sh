@@ -25,6 +25,7 @@ extensions=(
   sirmspencer.vscode-autohide
   unifiedjs.vscode-mdx
   ms-vscode.vscode-typescript-next
+  anthropic.claude-code
 )
 
 for i in ${extensions[@]}; do

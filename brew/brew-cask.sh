@@ -9,16 +9,23 @@ casks=(
   arq
   bartender
   charles
+  claude
   cloudflare-warp
   discord
-  docker
+  docker-desktop
   firefox
+  font-fira-code
   font-hack-nerd-font
+  font-jetbrains-mono
+  font-source-code-pro
+  foobar2000
   google-chrome
   insomnia
   iterm2
   jetbrains-toolbox
+  knockknock
   maccy
+  native-access
   ngrok
   notion
   postman
@@ -34,7 +41,8 @@ casks=(
   visual-studio-code
   vlc
   whatsapp
-  wireshark
+  wireshark-app
+  xact
   yubico-authenticator
   zoom
 )
