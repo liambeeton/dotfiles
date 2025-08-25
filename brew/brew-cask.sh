@@ -10,7 +10,6 @@ casks=(
   bartender
   charles
   claude
-  cloudflare-warp
   discord
   docker-desktop
   firefox
@@ -23,20 +22,17 @@ casks=(
   insomnia
   iterm2
   jetbrains-toolbox
-  knockknock
   maccy
-  native-access
   ngrok
   notion
   postman
+  protonvpn
   raycast
   rectangle
-  signal
+  sequel-ace
   slack
   spotify
-  telegram
   tor-browser
-  transmission
   typora
   visual-studio-code
   vlc
