@@ -6,7 +6,6 @@ set -e
 casks=(
   1password
   android-studio
-  arq
   bartender
   charles
   claude
@@ -37,7 +36,6 @@ casks=(
   visual-studio-code
   vlc
   whatsapp
-  wireshark-app
   xact
   yubico-authenticator
   zoom
