@@ -3,15 +3,14 @@
 # Exit on first error
 set -e
 
-# Modifies the PATH for the current user to include the Volta shim directory
-volta setup
+# Install volta
+curl https://get.volta.sh | bash
 
-# Reload settings after setup
-source ~/.zshrc
+# Reload settings
+source ~/.zshenv
 
-# Install node and snpm
+# Install node
 volta install node
-volta install npm
 
 packages=(
   eslint

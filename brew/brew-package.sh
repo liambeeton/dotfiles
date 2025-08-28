@@ -37,7 +37,6 @@ packages=(
   tfenv
   tgenv
   uv
-  volta
   wget
   ykman
 )

@@ -72,9 +72,6 @@ source ~/z.sh
 export DOTNET_ROOT=$HOME/.dotnet
 export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools
 
-# use dotnet x64
-alias dotnetx64="/usr/local/share/dotnet/x64/dotnet"
-
 # use android
 export ANDROID_HOME="~/Library/Android/sdk"
 export PATH="$ANDROID_HOME/platform-tools:$PATH"
@@ -93,17 +90,6 @@ eval "$(jenv init -)"
 
 # use rust
 export PATH="$HOME/.cargo/env:$PATH"
-
-# use volta
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
-
-# pnpm
-export PNPM_HOME="/Users/liam/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
 
 # use direnv
 eval "$(direnv hook zsh)"

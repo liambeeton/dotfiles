@@ -3,7 +3,7 @@
 # Exit on first error
 set -e
 
-COMPUTER_NAME="Nomad"
+COMPUTER_NAME="Solis"
 
 # Set computer name (as done via System Preferences → Sharing)
 sudo scutil --set ComputerName "$COMPUTER_NAME"

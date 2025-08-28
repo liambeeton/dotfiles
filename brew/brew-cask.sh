@@ -5,11 +5,8 @@ set -e
 
 casks=(
   1password
-  android-studio
   bartender
   charles
-  claude
-  discord
   docker-desktop
   firefox
   font-fira-code
@@ -21,24 +18,17 @@ casks=(
   insomnia
   iterm2
   jetbrains-toolbox
+  little-snitch@5
   maccy
   ngrok
-  notion
-  postman
   protonvpn
   raycast
   rectangle
-  sequel-ace
-  slack
-  spotify
-  tor-browser
   typora
   visual-studio-code
   vlc
-  whatsapp
   xact
   yubico-authenticator
-  zoom
 )
 
 brew install --cask --force "${casks[@]}"
