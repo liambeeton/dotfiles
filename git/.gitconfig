@@ -1,0 +1,98 @@
+[user]
+  name = Liam Beeton
+  email = liam.beeton@gmail.com
+
+[core]
+  editor = code --wait  # Use Visual Studio Code as the editor
+  whitespace = fix
+  autocrlf = input  # Automatically handle line endings on commit
+  pager = delta
+  excludesfile = ~/.global_gitignore  # Path to global .gitignore
+  attributesfile = ~/.global_gitattributes  # Path to global .gitattributes
+
+[alias]
+  st = status
+  ci = commit
+  co = checkout
+  br = branch
+  pu = push
+  pf = push --force
+  lg = log --oneline --graph --decorate --all
+  amend = commit --amend
+  last = log -1 HEAD
+  unstage = reset HEAD --
+  aliases = config --get-regexp ^alias  # Show all aliases
+  rb = rebase
+  rbc = rebase --continue
+  rba = rebase --abort
+  rbi = rebase -i  # Interactive rebase
+  rbs = rebase --skip
+
+[merge]
+  tool = vscode  # Use Visual Studio Code as the merge tool
+  conflictstyle = diff3
+
+[mergetool "vscode"]
+  cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
+
+[diff]
+  tool = vscode  # Use Visual Studio Code as the diff tool
+  colorMoved = default
+
+[difftool "vscode"]
+  cmd = code --wait --diff $LOCAL $REMOTE
+
+[push]
+  default = simple  # Push only the current branch
+
+[status]
+  showUntrackedFiles = all
+
+[credential]
+  helper = cache --timeout=3600  # Cache credentials for 1 hour
+
+[fetch]
+  prune = true  # Prune local branches that have been removed from the remote
+
+[rerere]
+  enabled = false  # Enable reuse recorded resolution of conflicts
+
+[pull]
+  rebase = false  # Disable automatic rebasing on pull
+
+[log]
+  decorate = true  # Show ref names in logs
+  abbrevCommit = true
+  graph = true
+  date = iso
+
+[interactive]
+  diffFilter = delta --color-only  # Use delta for better interactive diff views (if installed)
+
+[color]
+  ui = true
+  diff = auto
+  status = auto
+  branch = auto
+  interactive = auto
+
+[commit]
+  template = ~/.gitmessage.txt  # Path to a commit message template
+
+[init]
+  defaultBranch = main  # Default branch name for new repositories
+
+[http]
+  sslVerify = true
+
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  required = true
+  process = git-lfs filter-process
+
+[delta]
+  features = decorations
+  line-numbers = true
+  navigate = true  # Allow navigation in delta diffs
+  side-by-side = true

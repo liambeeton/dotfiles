@@ -1,0 +1,81 @@
+# Normalize line endings for all text files
+
+* text=auto
+
+# Define binary files (do not normalize line endings)
+
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.gif binary
+*.bmp binary
+*.tiff binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.bz2 binary
+*.7z binary
+*.tar binary
+*.rar binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.iso binary
+*.jar binary
+*.war binary
+*.ear binary
+*.mp3 binary
+*.mp4 binary
+*.avi binary
+*.mov binary
+*.wmv binary
+*.flv binary
+*.mkv binary
+*.swf binary
+
+# Custom merge strategy for specific file types
+
+*.lock merge=union
+*.json merge=diff3
+*.xml merge=diff3
+
+# Define specific end-of-line normalization rules
+
+*.sh text eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=lf
+
+# Define diff settings for specific file types
+
+*.c diff=cpp
+*.cpp diff=cpp
+*.h diff=cpp
+*.py diff=python
+*.java diff=java
+*.cs diff=csharp
+*.js diff=javascript
+*.ts diff=typescript
+*.html diff=html
+*.css diff=css
+
+# Linguist overrides for GitHub language stats (if using GitHub)
+
+*.md linguist-language=Markdown
+*.yml linguist-language=YAML
+*.yaml linguist-language=YAML
+*.json linguist-language=JSON
+*.toml linguist-language=TOML
+*.xml linguist-language=XML
+
+# Special handling for large text files
+
+*.log -diff
+*.sql -diff
+
+# Custom attributes for documentation files
+
+*.md text
+*.rst text
+*.adoc text
