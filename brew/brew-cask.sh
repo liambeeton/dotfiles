@@ -21,6 +21,8 @@ casks=(
   little-snitch
   native-access
   protonvpn
+  rekordbox
+  spotify
   typora
   visual-studio-code
   vlc
