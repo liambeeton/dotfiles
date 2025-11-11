@@ -24,10 +24,12 @@ packages=(
   jq
   k6
   kubectl
+  maven
   minikube
   mkcert
   ollama
   openssl@3
+  postgresql@15
   redis
   ripgrep
   starship
