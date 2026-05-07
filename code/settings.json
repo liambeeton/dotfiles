@@ -35,49 +35,8 @@
   },
   "files.trimTrailingWhitespace": true,
   "git.openRepositoryInParentFolders": "never",
-  "javascript.updateImportsOnFileMove.enabled": "prompt",
-  "javascript.validate.enable": false,
-  "js/ts.implicitProjectConfig.checkJs": true,
-  "tailwind-fold.autoFold": false,
   "terminal.integrated.fontFamily": "Hack Nerd Font Mono",
   "terminal.integrated.fontSize": 14,
-  "todohighlight.isCaseSensitive": true,
-  "todohighlight.isEnable": true,
-  "todohighlight.keywords": [
-    {
-      "backgroundColor": "rgba(0,0,0,.2)",
-      "border": "1px solid red",
-      "borderRadius": "4px",
-      "color": "red",
-      "isWholeLine": false,
-      "text": "ctx.prisma.stripeIntegration"
-    },
-    {
-      "backgroundColor": "rgba(0,0,0,.2)",
-      "border": "1px solid red",
-      "borderRadius": "4px",
-      "color": "red",
-      "isWholeLine": false,
-      "text": "adminProcedure"
-    },
-    {
-      "backgroundColor": "rgba(0,0,0,.2)",
-      "border": "1px solid red",
-      "borderRadius": "4px",
-      "color": "red",
-      "isWholeLine": false,
-      "text": "authProcedure"
-    },
-    {
-      "backgroundColor": "rgba(0,0,0,.2)",
-      "border": "1px solid green",
-      "borderRadius": "4px",
-      "color": "green",
-      "isWholeLine": false,
-      "text": "publicProcedure"
-    }
-  ],
-  "typescript.updateImportsOnFileMove.enabled": "never",
   "update.showReleaseNotes": false,
   "vsicons.dontShowNewVersionMessage": true,
   "window.customTitleBarVisibility": "never",
