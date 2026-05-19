@@ -51,7 +51,7 @@
   "workbench.colorTheme": "GitHub Dark Default",
   "workbench.editor.enablePreview": false,
   "workbench.editor.restoreViewState": true,
-  "workbench.editor.showTabs": "none",
+  "workbench.editor.showTabs": "multiple",
   "workbench.iconTheme": "vscode-icons",
   "workbench.sideBar.location": "left",
   "workbench.startupEditor": "none",
