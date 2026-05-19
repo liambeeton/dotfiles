@@ -28,6 +28,7 @@ packages=(
   minikube
   mkcert
   ollama
+  anomalyco/tap/opencode
   openjdk@11
   openjdk@17
   openjdk@21
