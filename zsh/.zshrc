@@ -42,6 +42,8 @@ alias gitconfig="code ~/.gitconfig"
 # custom aliases
 alias dev="cd ~/Developer"
 alias dot="cd ~/.dotfiles"
+alias era=": > ~/.zsh_history && rm ~/.zsh_history"
+alias pip="pip3"
 
 # git aliases
 alias gits="git status"
