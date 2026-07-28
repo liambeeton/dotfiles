@@ -9,7 +9,7 @@ casks=(
   brave-browser
   charles
   claude
-  claude-code
+  claude-code@latest
   cloudflare-warp
   corretto@8
   corretto@11

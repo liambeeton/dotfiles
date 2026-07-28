@@ -28,7 +28,7 @@ packages=(
   minikube
   mkcert
   ollama
-  anomalyco/tap/opencode
+  opencode
   openssl@3
   ripgrep
   starship
