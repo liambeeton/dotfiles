@@ -55,7 +55,7 @@ alias gitf='git commit --fixup $(git log -1 --format=%H)'
 alias gitn='git branch | grep -v "develop" | grep -v "master" | grep -v "main" | xargs git branch -D'
 
 # docker aliases
-alias docv="docker ps -a"
+alias docp="docker ps -a"
 alias docu="docker-compose up --build"
 alias docb="docker-compose build"
 alias docd="docker-compose down -v"
