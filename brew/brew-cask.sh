@@ -21,6 +21,7 @@ casks=(
   corretto@25
   discord
   docker-desktop
+  eqmac
   firefox
   font-fira-code
   font-hack-nerd-font
@@ -36,6 +37,7 @@ casks=(
   maccy
   ngrok
   obsidian
+  parallels
   postman
   protonvpn
   raycast
@@ -44,6 +46,7 @@ casks=(
   soapui
   spotify
   tailscale-app
+  telegram
   typora
   visual-studio-code
   vlc
