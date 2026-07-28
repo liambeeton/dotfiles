@@ -11,6 +11,11 @@ casks=(
   claude
   claude-code
   cloudflare-warp
+  corretto@8
+  corretto@11
+  corretto@17
+  corretto@21
+  corretto@25
   discord
   docker-desktop
   firefox
