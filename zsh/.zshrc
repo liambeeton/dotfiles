@@ -36,6 +36,9 @@ alias sshhome="cd ~/.ssh"
 # edit global ssh configuration
 alias sshconfig="code ~/.ssh/config"
 
+# edit global claude settings
+alias claudeconfig="code ~/.claude/settings.json"
+
 # edit global git configuration
 alias gitconfig="code ~/.gitconfig"
 
@@ -101,6 +104,10 @@ case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
+
+# use app store connect
+export APP_STORE_CONNECT_KEY_ID=57CM234W27
+export APP_STORE_CONNECT_ISSUER_ID=188c5e17-439a-4a12-9b9d-0dc4f8a36582
 
 # use direnv
 eval "$(direnv hook zsh)"
