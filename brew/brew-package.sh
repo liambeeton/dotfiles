@@ -11,6 +11,7 @@ packages=(
   dotnet
   eza
   flyway
+  gh
   git
   git-delta
   git-lfs

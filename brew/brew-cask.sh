@@ -19,6 +19,7 @@ casks=(
   corretto@17
   corretto@21
   corretto@25
+  cyberduck
   discord
   docker-desktop
   eqmac
