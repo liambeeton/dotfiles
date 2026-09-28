@@ -3,8 +3,6 @@
 set -euo pipefail
 
 extensions=(
-  openai.chatgpt
-  anthropic.claude-code
   GitHub.github-vscode-theme
   vscode-icons-team.vscode-icons
 )

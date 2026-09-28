@@ -8,12 +8,10 @@ casks=(
   bartender
   brave-browser
   charles
-  chatgpt
   claude
   claude-code@latest
   cloudflare-warp
   cmux
-  codex
   corretto@8
   corretto@11
   corretto@17
