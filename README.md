@@ -10,6 +10,8 @@ This repo sets up a development workstation with:
 - VS Code settings, keybindings, and extensions
 - Zsh, Oh My Zsh, plugins, aliases, and shell paths
 - Node.js through Volta plus common global npm packages
+- Claude Code user settings (permissions, notification hooks)
+- Codex user settings (`~/.codex/config.toml`)
 
 ## Requirements
 
@@ -82,6 +84,7 @@ This links:
 - Git config files into `$HOME`
 - VS Code settings into `~/Library/Application Support/Code/User`
 - Zsh config into `$HOME`
+- Codex config into `~/.codex/config.toml`
 
 ## Layout
 
@@ -89,6 +92,7 @@ This links:
 .
 |-- brew/              Homebrew installer, package list, cask list, uninstall script
 |-- code/              VS Code settings, keybindings, extensions, install/uninstall scripts
+|-- codex/             Codex user config and uninstall script
 |-- git/               Git config, ignore rules, attributes, commit template
 |-- macos/             macOS defaults and hostname scripts
 |-- node/              Volta, Node.js, npm global packages
