@@ -48,6 +48,7 @@ $RECYCLE.BIN/
 # ------------------------------
 .env
 .env.*
+.envrc
 *.local
 
 # ------------------------------
@@ -57,4 +58,4 @@ $RECYCLE.BIN/
 *.orig
 *.rej
 
-**/.claude/settings.local.json
+**/.claude/.cc-writes/
