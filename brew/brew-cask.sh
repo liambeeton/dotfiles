@@ -5,10 +5,10 @@ set -euo pipefail
 casks=(
   1password
   arq
+  azure-cli
   bartender
   brave-browser
   charles
-  claude
   claude-code@latest
   cloudflare-warp
   cmux
@@ -47,6 +47,7 @@ casks=(
   tailscale-app
   telegram
   typora
+  vercel
   visual-studio-code
   vlc
   whatsapp

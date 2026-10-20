@@ -4,7 +4,6 @@ set -euo pipefail
 
 packages=(
   awscli
-  azure-cli
   difftastic
   direnv
   dive
