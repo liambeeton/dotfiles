@@ -36,9 +36,6 @@ alias sshhome="cd ~/.ssh"
 # edit global ssh configuration
 alias sshconfig="code ~/.ssh/config"
 
-# edit global claude settings
-alias claudeconfig="code ~/.claude/settings.json"
-
 # edit global git configuration
 alias gitconfig="code ~/.gitconfig"
 

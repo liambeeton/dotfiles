@@ -29,10 +29,4 @@ ln -sfv "$DOTFILES_DIR/code/settings.json" ~/Library/Application\ Support/Code/U
 
 ln -sfv "$DOTFILES_DIR/zsh/.zshrc" ~
 
-mkdir -p ~/.claude
-ln -sfv "$DOTFILES_DIR/claude/settings.json" ~/.claude/settings.json
-
-mkdir -p ~/.codex
-ln -sfv "$DOTFILES_DIR/codex/config.toml" ~/.codex/config.toml
-
 . "$DOTFILES_DIR/node/npm.sh"

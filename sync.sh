@@ -14,9 +14,3 @@ ln -sfv "$DOTFILES_DIR/code/keybindings.json" ~/Library/Application\ Support/Cod
 ln -sfv "$DOTFILES_DIR/code/settings.json" ~/Library/Application\ Support/Code/User/settings.json
 
 ln -sfv "$DOTFILES_DIR/zsh/.zshrc" ~
-
-mkdir -p ~/.claude
-ln -sfv "$DOTFILES_DIR/claude/settings.json" ~/.claude/settings.json
-
-mkdir -p ~/.codex
-ln -sfv "$DOTFILES_DIR/codex/config.toml" ~/.codex/config.toml
