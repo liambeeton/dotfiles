@@ -16,20 +16,6 @@ vscode_extensions=(
   vscode-icons-team.vscode-icons
 )
 
-npm_packages=(
-  eslint
-  http-server
-  nodemon
-  pnpm
-  release-it
-  spot
-  svgo
-  tldr
-  typescript
-  vtop
-  yarn
-)
-
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
@@ -266,20 +252,17 @@ setup_starship() {
   fi
 }
 
+setup_mise() {
+  print_section "mise"
+
+  mkdir -p "$HOME/.config/mise"
+  link_file "$DOTFILES_DIR/mise/config.toml" "$HOME/.config/mise/config.toml"
+}
+
 install_node() {
-  print_section "Node.js"
-
-  export VOLTA_HOME="$HOME/.volta"
-  export PATH="$VOLTA_HOME/bin:$PATH"
-
-  if [[ -x "$VOLTA_HOME/bin/volta" ]]; then
-    print_success "Volta already installed"
-  else
-    curl https://get.volta.sh | bash
-  fi
-
-  volta install node
-  npm install -g "${npm_packages[@]}"
+  setup_mise
+  mise install --yes
+  print_success "Node.js and global packages installed"
 }
 
 set_zsh_default() {
@@ -309,6 +292,7 @@ setup_configs() {
   setup_ghostty
   setup_tmux
   setup_starship
+  setup_mise
 }
 
 setup_all() {
@@ -359,7 +343,7 @@ Usage: ./setup.sh [step]
   ghostty          Link Ghostty config
   tmux             Link tmux config and install its plugin manager
   zsh              Install Oh My Zsh and plugins
-  node             Install Volta, Node.js, and global packages
+  node             Install Node.js and global packages with mise
 
 With no step, shows a menu.
 EOF

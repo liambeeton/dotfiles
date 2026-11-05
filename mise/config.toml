@@ -1,0 +1,19 @@
+# Node.js and global npm packages. Apply changes with: make node
+
+[settings]
+# Use a project's .nvmrc or .node-version when it has one
+idiomatic_version_file_enable_tools = ["node"]
+
+[tools]
+node = "lts"
+"npm:eslint" = "latest"
+"npm:http-server" = "latest"
+"npm:nodemon" = "latest"
+"npm:pnpm" = "latest"
+"npm:release-it" = "latest"
+"npm:spot" = "latest"
+"npm:svgo" = "latest"
+"npm:tldr" = "latest"
+"npm:typescript" = "latest"
+"npm:vtop" = "latest"
+"npm:yarn" = "latest"

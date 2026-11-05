@@ -51,7 +51,7 @@ test_static() {
 # Stubs log their arguments to $STUB_LOG and do nothing else.
 make_stubs() {
   local dir="$1" name
-  for name in brew code volta npm defaults chflags scutil sudo chsh; do
+  for name in brew code mise defaults chflags scutil sudo chsh; do
     # shellcheck disable=SC2016 # expands when the stub runs
     printf '#!/bin/sh\necho "%s $*" >> "$STUB_LOG"\n' "$name" > "$dir/$name"
   done
@@ -79,12 +79,6 @@ echo "omz $*" >> "$STUB_LOG"
 mkdir -p "$HOME/.oh-my-zsh/custom/plugins"
 SCRIPT
     ;;
-  *get.volta.sh*)
-    cat <<'SCRIPT'
-mkdir -p "$HOME/.volta/bin"
-cp "$STUB_DIR/volta" "$HOME/.volta/bin/volta"
-SCRIPT
-    ;;
   *z.sh*) : > "$HOME/z.sh" ;;
 esac
 STUB
@@ -107,7 +101,7 @@ STUB
 # Homebrew out: its shellenv would put the real tools ahead of the stubs on PATH.
 in_sandbox() {
   env HOME="$home" PATH="$stubs:$(dirname "$(command -v bash)"):/usr/bin:/bin" SHELL=/bin/zsh \
-    BREW_BIN="$stubs/brew" STUB_LOG="$log" STUB_DIR="$stubs" FAKE_REPO="$REPO" "$@" </dev/null
+    BREW_BIN="$stubs/brew" STUB_LOG="$log" FAKE_REPO="$REPO" "$@" </dev/null
 }
 
 new_home() {
@@ -139,7 +133,8 @@ test_flow() {
   check "Brewfile installed" grep -q "brew bundle install --no-upgrade --file $REPO/Brewfile" "$log"
   check "Oh My Zsh keeps zshrc" grep -q "omz .*--keep-zshrc" "$log"
   check_not "Oh My Zsh template not written" grep -q "omz template created" "$log"
-  check "Node packages installed" grep -q "npm install -g eslint" "$log"
+  check "mise config linked" links_to "$home/.config/mise/config.toml" "$REPO/mise/config.toml"
+  check "Node packages installed" grep -q "mise install" "$log"
   check "Ghostty config linked" links_to "$home/.config/ghostty/config" "$REPO/ghostty/config"
   check "tmux config linked" links_to "$home/.tmux.conf" "$REPO/tmux/.tmux.conf"
   check "tmux plugin manager cloned" test -d "$home/.tmux/plugins/tpm"
@@ -155,7 +150,6 @@ test_flow() {
   check "no second backup" test "$(find "$home" -maxdepth 1 -name '*.backup.*' | wc -l)" -eq 1
   check_not "nothing re-cloned" grep -q "git clone" "$log"
   check_not "Oh My Zsh not reinstalled" grep -q "^omz " "$log"
-  check_not "Volta not reinstalled" grep -q "get.volta.sh" "$log"
   check "starship config left alone" has_count "$log" "starship preset" 0
 
   # Uninstall removes it all, and can run twice.
@@ -164,6 +158,7 @@ test_flow() {
   check_not "uninstall removes zshrc" test -e "$home/.zshrc"
   check_not "uninstall removes git config" test -e "$home/.gitconfig"
   check_not "uninstall removes Oh My Zsh" test -e "$home/.oh-my-zsh"
+  check_not "uninstall removes mise config" test -e "$home/.config/mise"
   check_not "uninstall removes tmux config" test -e "$home/.tmux.conf"
   check_not "uninstall removes Ghostty config" test -e "$home/.config/ghostty"
   check "uninstall can re-run" in_sandbox bash "$REPO/uninstall.sh"
@@ -181,7 +176,7 @@ test_flow() {
   echo "mine" > "$home/.config/starship.toml"
   check "config succeeds with starship config" in_sandbox bash "$REPO/setup.sh" config
   check "starship config kept" grep -q mine "$home/.config/starship.toml"
-  check_not "config-only runs no installs" grep -qE "brew bundle|npm install|git clone" "$log"
+  check_not "config-only runs no installs" grep -qE "brew bundle|mise install|git clone" "$log"
 
   # An existing real ~/.zshrc keeps its contents.
   new_home

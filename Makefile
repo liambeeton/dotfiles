@@ -33,8 +33,8 @@ help:
 		'ghostty-install   Link Ghostty config' \
 		'tmux-install      Link tmux config and install its plugin manager' \
 		'terminal-uninstall  Remove Ghostty and tmux config' \
-		'node              Install Volta, Node.js, and global packages' \
-		'node-uninstall    Remove Volta files' \
+		'node              Install Node.js and global packages with mise' \
+		'node-uninstall    Remove mise and Volta files' \
 		'zsh               Install Oh My Zsh and plugins' \
 		'zsh-uninstall     Remove Zsh and Oh My Zsh files' \
 		'git-install       Link Git dotfiles' \

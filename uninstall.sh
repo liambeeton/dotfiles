@@ -35,6 +35,10 @@ uninstall_git() {
 
 uninstall_node() {
   rm -rf ~/.volta
+  rm -rf ~/.config/mise
+  rm -rf ~/.local/share/mise
+  rm -rf ~/.local/state/mise
+  rm -rf ~/Library/Caches/mise
 }
 
 uninstall_terminal() {
