@@ -7,7 +7,7 @@ Personal macOS dotfiles and bootstrap scripts. One command sets up a development
 - Git configuration, global ignore rules, attributes, and commit template
 - VS Code settings, keybindings, and extensions
 - Zsh, Oh My Zsh, plugins, aliases, and shell paths
-- Ghostty configuration
+- Ghostty and tmux configuration
 - Node.js through Volta plus common global npm packages
 
 These scripts are personal and intentionally opinionated. Review them before running on a machine you do not want fully reconfigured.
@@ -57,6 +57,7 @@ Choose a full setup, tools only, or configuration only from a menu.
 | `make code-install` | Link VS Code settings and keybindings |
 | `make code-extensions` | Install VS Code extensions |
 | `make ghostty-install` | Link Ghostty config |
+| `make tmux-install` | Link tmux config and install its plugin manager |
 | `make zsh` | Install Oh My Zsh, plugins, and `z.sh` |
 | `make node` | Install Volta, Node.js, and global npm packages |
 
@@ -67,6 +68,7 @@ The full setup does not upgrade packages that are already installed. Run `make b
 | Tool | Used for |
 | --- | --- |
 | `ghostty` | Terminal, configured in `ghostty/config` |
+| `tmux` | Multiplexer. Press `prefix + I` once to install its plugins |
 | `ripgrep`, `fd` | Search. `grep` and `find` are not aliased because their flags differ |
 | `git-delta`, `difftastic` | Diffs |
 | `uv` | Python |
@@ -84,6 +86,7 @@ The full setup does not upgrade packages that are already installed. Run `make b
 |-- code/         VS Code settings and keybindings
 |-- ghostty/      Ghostty config
 |-- git/          Git config, ignore rules, attributes, commit template
+|-- tmux/         tmux config
 `-- tests/        Test suite
 ```
 
@@ -94,7 +97,7 @@ The full setup does not upgrade packages that are already installed. Run `make b
 - **Shell config for every machine:** edit `zsh.env`.
 - **Shell config for one machine:** edit `~/.zshrc`. It is not tracked, and it only needs to keep the line that sources `zsh.env`. Installers that append to it no longer dirty the repo.
 
-Git, VS Code, and Ghostty files are symlinked, so edits take effect immediately. An existing file is copied to `<file>.backup.<timestamp>` before it is replaced or edited.
+Git, VS Code, Ghostty, and tmux files are symlinked, so edits take effect immediately. An existing file is copied to `<file>.backup.<timestamp>` before it is replaced or edited.
 
 ## Testing
 
@@ -112,4 +115,4 @@ The flow tests use a throwaway `HOME` with stubs for anything that installs or c
 make uninstall
 ```
 
-This removes Homebrew and casks, VS Code user data, Git dotfiles, Volta, Ghostty config, Zsh files, Oh My Zsh, and shell history. Read `uninstall.sh` first: these commands permanently delete files from `$HOME` and application support directories. Use `make brew-uninstall`, `code-uninstall`, `git-uninstall`, `node-uninstall`, `terminal-uninstall`, or `zsh-uninstall` to remove one part.
+This removes Homebrew and casks, VS Code user data, Git dotfiles, Volta, Ghostty and tmux config, Zsh files, Oh My Zsh, and shell history. Read `uninstall.sh` first: these commands permanently delete files from `$HOME` and application support directories. Use `make brew-uninstall`, `code-uninstall`, `git-uninstall`, `node-uninstall`, `terminal-uninstall`, or `zsh-uninstall` to remove one part.

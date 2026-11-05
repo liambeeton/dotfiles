@@ -234,6 +234,22 @@ setup_ghostty() {
   link_file "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
 }
 
+setup_tmux() {
+  print_section "tmux"
+  link_file "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
+}
+
+install_tmux_plugin_manager() {
+  print_section "tmux plugin manager"
+
+  if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
+    print_success "TPM already installed"
+  else
+    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+    print_info "Press prefix + I inside tmux to install its plugins"
+  fi
+}
+
 install_node() {
   print_section "Node.js"
 
@@ -266,6 +282,7 @@ setup_tools() {
   install_tools
   install_vscode_extensions
   install_oh_my_zsh
+  install_tmux_plugin_manager
   install_node
 }
 
@@ -274,6 +291,7 @@ setup_configs() {
   setup_vscode
   setup_zsh
   setup_ghostty
+  setup_tmux
 }
 
 setup_all() {
@@ -322,6 +340,7 @@ Usage: ./setup.sh [step]
   code             Link VS Code settings and keybindings
   code-extensions  Install VS Code extensions
   ghostty          Link Ghostty config
+  tmux             Link tmux config and install its plugin manager
   zsh              Install Oh My Zsh and plugins
   node             Install Volta, Node.js, and global packages
 
@@ -351,6 +370,10 @@ main() {
     code) setup_vscode ;;
     code-extensions) install_vscode_extensions ;;
     ghostty) setup_ghostty ;;
+    tmux)
+      setup_tmux
+      install_tmux_plugin_manager
+      ;;
     zsh) install_oh_my_zsh ;;
     node) install_node ;;
     help | -h | --help) print_usage ;;

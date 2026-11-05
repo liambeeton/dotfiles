@@ -11,7 +11,7 @@ UNINSTALL := $(BASH) "$(DOTFILES_DIR)/uninstall.sh"
 	macos-defaults macos-hostname \
 	brew brew-bundle brew-uninstall \
 	code-install code-extensions code-uninstall \
-	ghostty-install terminal-uninstall \
+	ghostty-install tmux-install terminal-uninstall \
 	node node-uninstall \
 	zsh zsh-uninstall \
 	git-install git-uninstall
@@ -31,7 +31,8 @@ help:
 		'code-extensions   Install VS Code extensions' \
 		'code-uninstall    Remove VS Code files' \
 		'ghostty-install   Link Ghostty config' \
-		'terminal-uninstall  Remove Ghostty config' \
+		'tmux-install      Link tmux config and install its plugin manager' \
+		'terminal-uninstall  Remove Ghostty and tmux config' \
 		'node              Install Volta, Node.js, and global packages' \
 		'node-uninstall    Remove Volta files' \
 		'zsh               Install Oh My Zsh and plugins' \
@@ -77,6 +78,9 @@ code-uninstall:
 
 ghostty-install:
 	$(SETUP) ghostty
+
+tmux-install:
+	$(SETUP) tmux
 
 terminal-uninstall:
 	$(UNINSTALL) terminal

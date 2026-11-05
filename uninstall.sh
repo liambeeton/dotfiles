@@ -39,6 +39,8 @@ uninstall_node() {
 
 uninstall_terminal() {
   rm -rf ~/.config/ghostty
+  rm -f ~/.tmux.conf
+  rm -rf ~/.tmux
 }
 
 uninstall_zsh() {

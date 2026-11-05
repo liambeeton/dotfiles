@@ -135,6 +135,8 @@ test_flow() {
   check_not "Oh My Zsh template not written" grep -q "omz template created" "$log"
   check "Node packages installed" grep -q "npm install -g eslint" "$log"
   check "Ghostty config linked" links_to "$home/.config/ghostty/config" "$REPO/ghostty/config"
+  check "tmux config linked" links_to "$home/.tmux.conf" "$REPO/tmux/.tmux.conf"
+  check "tmux plugin manager cloned" test -d "$home/.tmux/plugins/tpm"
   check_not "hostname untouched by full setup" grep -q scutil "$log"
   check_not "packages not upgraded by full setup" grep -q "brew upgrade" "$log"
 
@@ -154,6 +156,7 @@ test_flow() {
   check_not "uninstall removes zshrc" test -e "$home/.zshrc"
   check_not "uninstall removes git config" test -e "$home/.gitconfig"
   check_not "uninstall removes Oh My Zsh" test -e "$home/.oh-my-zsh"
+  check_not "uninstall removes tmux config" test -e "$home/.tmux.conf"
   check_not "uninstall removes Ghostty config" test -e "$home/.config/ghostty"
   check "uninstall can re-run" in_sandbox bash "$REPO/uninstall.sh"
 
