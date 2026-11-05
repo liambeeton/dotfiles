@@ -51,7 +51,7 @@ test_static() {
 # Stubs log their arguments to $STUB_LOG and do nothing else.
 make_stubs() {
   local dir="$1" name
-  for name in brew code mise tldr fzf atuin zoxide jenv direnv defaults chflags scutil sudo chsh; do
+  for name in brew code mise tldr fzf atuin zoxide direnv defaults chflags scutil sudo chsh; do
     # shellcheck disable=SC2016 # expands when the stub runs
     printf '#!/bin/sh\necho "%s $*" >> "$STUB_LOG"\n' "$name" > "$dir/$name"
   done
@@ -146,7 +146,7 @@ test_flow() {
   check "Oh My Zsh keeps zshrc" grep -q "omz .*--keep-zshrc" "$log"
   check_not "Oh My Zsh template not written" grep -q "omz template created" "$log"
   check "mise config linked" links_to "$home/.config/mise/config.toml" "$REPO/mise/config.toml"
-  check "Node packages installed" grep -q "mise install" "$log"
+  check "mise tools installed" grep -q "mise install" "$log"
   check "Ghostty config linked" links_to "$home/.config/ghostty/config" "$REPO/ghostty/config"
   check "tmux config linked" links_to "$home/.tmux.conf" "$REPO/tmux/.tmux.conf"
   check "tmux plugin manager cloned" test -d "$home/.tmux/plugins/tpm"
@@ -244,6 +244,9 @@ test_flow() {
   check "hostname applied" grep -q "sudo scutil --set ComputerName Aesoteric" "$log"
   check "brew step upgrades" in_sandbox bash "$REPO/setup.sh" brew
   check "brew upgrade ran" grep -q "brew upgrade" "$log"
+  : > "$log"
+  check "mise step" in_sandbox bash "$REPO/setup.sh" mise
+  check "mise step installs" grep -q "mise install" "$log"
 }
 
 case "${1:-all}" in

@@ -255,10 +255,10 @@ setup_mise() {
   link_file "$DOTFILES_DIR/mise/config.toml" "$HOME/.config/mise/config.toml"
 }
 
-install_node() {
+install_mise_tools() {
   setup_mise
   mise install --yes
-  print_success "Node.js and global packages installed"
+  print_success "Tools from mise/config.toml installed"
 }
 
 set_zsh_default() {
@@ -278,7 +278,7 @@ setup_tools() {
   install_vscode_extensions
   install_oh_my_zsh
   install_tmux_plugin_manager
-  install_node
+  install_mise_tools
 }
 
 setup_configs() {
@@ -339,7 +339,7 @@ Usage: ./setup.sh [step]
   ghostty          Link Ghostty config
   tmux             Link tmux config and install its plugin manager
   zsh              Install Oh My Zsh and plugins
-  node             Install Node.js and global packages with mise
+  mise             Install Java, Node.js, Terraform, Terragrunt, and npm packages
 
 With no step, shows a menu.
 EOF
@@ -372,7 +372,7 @@ main() {
       install_tmux_plugin_manager
       ;;
     zsh) install_oh_my_zsh ;;
-    node) install_node ;;
+    mise) install_mise_tools ;;
     help | -h | --help) print_usage ;;
     *)
       print_usage >&2

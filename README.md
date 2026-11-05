@@ -8,7 +8,7 @@ Personal macOS dotfiles and bootstrap scripts. One command sets up a development
 - VS Code settings, keybindings, and extensions
 - Zsh, Oh My Zsh, plugins, aliases, and shell paths
 - Ghostty and tmux configuration
-- Node.js and global npm packages through mise
+- Java, Node.js, Terraform, Terragrunt, and global npm packages through mise
 
 These scripts are personal and intentionally opinionated. Review them before running on a machine you do not want fully reconfigured.
 
@@ -59,7 +59,7 @@ Choose a full setup, tools only, or configuration only from a menu.
 | `make ghostty-install` | Link Ghostty config |
 | `make tmux-install` | Link tmux config and install its plugin manager |
 | `make zsh` | Install Oh My Zsh and plugins |
-| `make node` | Install Node.js and global npm packages with mise |
+| `make mise` | Install Java, Node.js, Terraform, Terragrunt, and global npm packages |
 
 The full setup does not upgrade packages that are already installed. Run `make brew` for that.
 
@@ -80,9 +80,8 @@ The full setup does not upgrade packages that are already installed. Run `make b
 | `git-delta`, `difftastic` | Diffs |
 | `bottom` (`btm`), `procs` | System monitor and `ps` replacement |
 | `tealdeer` (`tldr`), `tokei` (`loc`), `ouch` | Command examples, code statistics, compression |
-| `mise` | Node.js and global npm packages, from `mise/config.toml`. Also reads `.nvmrc` and `.node-version` |
+| `mise` | Java (Corretto), Node.js, Terraform, Terragrunt, and global npm packages, from `mise/config.toml`. Also reads each tool's version file in a project, such as `.java-version` or `.terraform-version` |
 | `uv` | Python |
-| `jenv`, `tfenv`, `tgenv` | Java, Terraform, and Terragrunt versions |
 
 ## Layout
 
@@ -96,7 +95,7 @@ The full setup does not upgrade packages that are already installed. Run `make b
 |-- code/         VS Code settings and keybindings
 |-- ghostty/      Ghostty config
 |-- git/          Git config, ignore rules, attributes, commit template
-|-- mise/         Node.js and global npm packages
+|-- mise/         Language runtimes, infrastructure tools, global npm packages
 |-- tmux/         tmux config
 `-- tests/        Test suite
 ```
@@ -104,7 +103,7 @@ The full setup does not upgrade packages that are already installed. Run `make b
 ## Customizing
 
 - **Packages:** edit `Brewfile`.
-- **Node.js version, global npm packages:** edit `mise/config.toml`, then run `make node`.
+- **Java, Node.js, Terraform, Terragrunt, global npm packages:** edit `mise/config.toml`, then run `make mise`.
 - **VS Code extensions, computer name:** edit the values at the top of `setup.sh`.
 - **Shell config for every machine:** edit `zsh.env`.
 - **Shell config for one machine:** edit `~/.zshrc`. It is not tracked, and it only needs to keep the line that sources `zsh.env`. Installers that append to it no longer dirty the repo.
@@ -127,4 +126,4 @@ The flow tests use a throwaway `HOME` with stubs for anything that installs or c
 make uninstall
 ```
 
-This removes Homebrew and casks, VS Code user data, Git dotfiles, mise, Ghostty and tmux config, Zsh files, Oh My Zsh, and shell history, including Atuin's. Read `uninstall.sh` first: these commands permanently delete files from `$HOME` and application support directories. Use `make brew-uninstall`, `code-uninstall`, `git-uninstall`, `node-uninstall`, `terminal-uninstall`, or `zsh-uninstall` to remove one part.
+This removes Homebrew and casks, VS Code user data, Git dotfiles, mise, Ghostty and tmux config, Zsh files, Oh My Zsh, and shell history, including Atuin's. Read `uninstall.sh` first: these commands permanently delete files from `$HOME` and application support directories. Use `make brew-uninstall`, `code-uninstall`, `git-uninstall`, `mise-uninstall`, `terminal-uninstall`, or `zsh-uninstall` to remove one part.

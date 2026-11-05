@@ -12,7 +12,7 @@ UNINSTALL := $(BASH) "$(DOTFILES_DIR)/uninstall.sh"
 	brew brew-bundle brew-uninstall \
 	code-install code-extensions code-uninstall \
 	ghostty-install tmux-install terminal-uninstall \
-	node node-uninstall \
+	mise mise-uninstall \
 	zsh zsh-uninstall \
 	git-install git-uninstall
 
@@ -33,8 +33,8 @@ help:
 		'ghostty-install   Link Ghostty config' \
 		'tmux-install      Link tmux config and install its plugin manager' \
 		'terminal-uninstall  Remove Ghostty and tmux config' \
-		'node              Install Node.js and global packages with mise' \
-		'node-uninstall    Remove mise and Volta files' \
+		'mise              Install Java, Node.js, Terraform, Terragrunt, and npm packages' \
+		'mise-uninstall    Remove mise files and older version manager files' \
 		'zsh               Install Oh My Zsh and plugins' \
 		'zsh-uninstall     Remove Zsh and Oh My Zsh files' \
 		'git-install       Link Git dotfiles' \
@@ -85,11 +85,11 @@ tmux-install:
 terminal-uninstall:
 	$(UNINSTALL) terminal
 
-node:
-	$(SETUP) node
+mise:
+	$(SETUP) mise
 
-node-uninstall:
-	$(UNINSTALL) node
+mise-uninstall:
+	$(UNINSTALL) mise
 
 zsh:
 	$(SETUP) zsh

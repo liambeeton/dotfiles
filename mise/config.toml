@@ -1,11 +1,21 @@
-# Node.js and global npm packages. Apply changes with: make node
+# Language runtimes, infrastructure tools, and global npm packages.
+# Apply changes with: make mise
 
 [settings]
-# Use a project's .nvmrc or .node-version when it has one
-idiomatic_version_file_enable_tools = ["node"]
+# Use a project's .java-version, .nvmrc, .node-version, .terraform-version, or
+# .terragrunt-version when it has one
+idiomatic_version_file_enable_tools = ["java", "node", "terraform", "terragrunt"]
+
+[settings.java]
+# A version with no vendor, such as 21 in .java-version, means Corretto
+shorthand_vendor = "corretto"
 
 [tools]
+# The first version is the default
+java = ["corretto-25", "corretto-21", "corretto-17", "corretto-11", "corretto-8"]
 node = "lts"
+terraform = "latest"
+terragrunt = "latest"
 "npm:eslint" = "latest"
 "npm:http-server" = "latest"
 "npm:nodemon" = "latest"
