@@ -61,6 +61,12 @@ make_stubs() {
 echo "${FAKE_UNAME:-Darwin}"
 STUB
 
+  cat > "$dir/starship" <<'STUB'
+#!/bin/sh
+echo "starship $*" >> "$STUB_LOG"
+if [ "$1" = preset ]; then echo "$2" > "$4"; fi
+STUB
+
   # Serves the installers that scripts pipe into a shell, and fakes downloads.
   cat > "$dir/curl" <<'STUB'
 #!/bin/sh
@@ -137,6 +143,7 @@ test_flow() {
   check "Ghostty config linked" links_to "$home/.config/ghostty/config" "$REPO/ghostty/config"
   check "tmux config linked" links_to "$home/.tmux.conf" "$REPO/tmux/.tmux.conf"
   check "tmux plugin manager cloned" test -d "$home/.tmux/plugins/tpm"
+  check "starship config created" grep -q gruvbox-rainbow "$home/.config/starship.toml"
   check_not "hostname untouched by full setup" grep -q scutil "$log"
   check_not "packages not upgraded by full setup" grep -q "brew upgrade" "$log"
 
@@ -149,6 +156,7 @@ test_flow() {
   check_not "nothing re-cloned" grep -q "git clone" "$log"
   check_not "Oh My Zsh not reinstalled" grep -q "^omz " "$log"
   check_not "Volta not reinstalled" grep -q "get.volta.sh" "$log"
+  check "starship config left alone" has_count "$log" "starship preset" 0
 
   # Uninstall removes it all, and can run twice.
   check "uninstall succeeds" in_sandbox bash "$REPO/uninstall.sh"
@@ -166,6 +174,14 @@ test_flow() {
   check "config succeeds over old symlink" in_sandbox bash "$REPO/setup.sh" config
   check_not "old zshrc symlink replaced" test -L "$home/.zshrc"
   check "zshrc sources zsh.env after migration" has_count "$home/.zshrc" "$REPO/zsh.env" 1
+
+  # An existing starship config is kept, and config-only runs install nothing.
+  new_home
+  mkdir -p "$home/.config"
+  echo "mine" > "$home/.config/starship.toml"
+  check "config succeeds with starship config" in_sandbox bash "$REPO/setup.sh" config
+  check "starship config kept" grep -q mine "$home/.config/starship.toml"
+  check_not "config-only runs no installs" grep -qE "brew bundle|npm install|git clone" "$log"
 
   # An existing real ~/.zshrc keeps its contents.
   new_home

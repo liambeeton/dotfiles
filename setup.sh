@@ -250,6 +250,22 @@ install_tmux_plugin_manager() {
   fi
 }
 
+# Generated rather than tracked, and never overwrites a config you already have.
+setup_starship() {
+  print_section "Starship"
+
+  local config="$HOME/.config/starship.toml"
+  if [[ -f "$config" ]]; then
+    print_success "$config already exists"
+  elif command -v starship >/dev/null 2>&1; then
+    mkdir -p "$HOME/.config"
+    starship preset gruvbox-rainbow -o "$config"
+    print_success "Created $config"
+  else
+    print_info "Starship is not installed yet, skipping its config"
+  fi
+}
+
 install_node() {
   print_section "Node.js"
 
@@ -292,6 +308,7 @@ setup_configs() {
   setup_zsh
   setup_ghostty
   setup_tmux
+  setup_starship
 }
 
 setup_all() {

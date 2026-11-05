@@ -50,6 +50,7 @@ uninstall_zsh() {
   rm -f ~/.zshrc.pre-oh-my-zsh
   rm -f ~/.zshrc
   rm -f ~/z.sh
+  rm -f ~/.config/starship.toml
 
   rm -rf ~/.zsh
   rm -rf ~/.zsh_sessions

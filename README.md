@@ -69,6 +69,7 @@ The full setup does not upgrade packages that are already installed. Run `make b
 | --- | --- |
 | `ghostty` | Terminal, configured in `ghostty/config` |
 | `tmux` | Multiplexer. Press `prefix + I` once to install its plugins |
+| `starship` | Prompt. Setup creates the gruvbox-rainbow preset if you have no config |
 | `ripgrep`, `fd` | Search. `grep` and `find` are not aliased because their flags differ |
 | `git-delta`, `difftastic` | Diffs |
 | `uv` | Python |
