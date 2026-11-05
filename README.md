@@ -3,7 +3,7 @@
 Personal macOS dotfiles and bootstrap scripts. One command sets up a development workstation, and re-running it only does what is missing.
 
 - macOS Finder, Dock, keyboard, text input, screenshot, and Preview defaults
-- Touch ID for `sudo`, the firewall, and a FileVault check
+- Touch ID for `sudo` in every terminal, including Ghostty, cmux, and tmux, the firewall, and a FileVault check
 - Homebrew, CLI packages, and GUI casks from a `Brewfile`
 - Git configuration, global ignore rules, attributes, and commit template
 - VS Code settings, keybindings, and extensions
@@ -144,6 +144,8 @@ The full setup does not upgrade packages that are already installed. Run `make b
 - **Shell config for one machine:** edit `~/.zshrc`. It is not tracked, and it only needs to keep the line that sources `zsh.env`. Installers that append to it no longer dirty the repo.
 
 Git, VS Code, Ghostty, tmux, and mise files are symlinked, so edits take effect immediately. An existing file is copied to `<file>.backup.<timestamp>` before it is replaced or edited.
+
+Touch ID for `sudo` is set in `/etc/pam.d/sudo_local`, and `pam_reattach` makes it work in multiplexed terminals. Removing the `pam-reattach` formula by hand can stop `sudo` from working, so delete its line from that file first. `make uninstall` and `make brew-uninstall` do this for you.
 
 ## Testing
 

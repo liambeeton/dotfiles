@@ -70,6 +70,7 @@ case "$1" in
   bundle)
     echo "HOMEBREW_NO_AUTO_UPDATE=${HOMEBREW_NO_AUTO_UPDATE:-unset}" >> "$STUB_LOG"
     if [ "${FAKE_BREW_STATUS:-0}" != 0 ]; then echo "Cask ghostty needs to be installed"; fi
+    if [ "${FAKE_BREW_STATUS:-0}" = 0 ] && [ "$2" = install ]; then : > "$PAM_REATTACH"; fi
     exit "${FAKE_BREW_STATUS:-0}"
     ;;
 esac
@@ -88,11 +89,12 @@ if [ "$1" = doctor ]; then
 fi
 STUB
 
-  # Runs tee for real, so tests can check what would be written.
+  # Runs tee and cp for real, so tests can check what would be written.
   cat > "$dir/sudo" <<'STUB'
 #!/bin/sh
 echo "sudo $*" >> "$STUB_LOG"
 if [ "$1" = tee ]; then cat > "$2"; fi
+if [ "$1" = cp ]; then shift; cp "$@"; fi
 STUB
 
   cat > "$dir/fdesetup" <<'STUB'
@@ -147,7 +149,12 @@ STUB
 # Homebrew out: its shellenv would put the real tools ahead of the stubs on PATH.
 in_sandbox() {
   env HOME="$home" PATH="$stubs:$(dirname "$(command -v bash)"):/usr/bin:/bin" SHELL=/bin/zsh \
-    BREW_BIN="$stubs/brew" PAM_DIR="$home/pam.d" STUB_LOG="$log" FAKE_REPO="$REPO" "$@" </dev/null
+    BREW_BIN="$stubs/brew" PAM_DIR="$home/pam.d" PAM_REATTACH="$home/pam_reattach.so" STUB_LOG="$log" FAKE_REPO="$REPO" "$@" </dev/null
+}
+
+# True if the sudo_local line with the first text comes right before the second's.
+pam_line_before() {
+  awk -v a="$2" -v b="$3" 'index($0, b) && index(prev, a) { found = 1 } { prev = $0 } END { exit !found }' "$1"
 }
 
 # True if the first text appears in the stub log before the second.
@@ -207,6 +214,9 @@ test_flow() {
   check "screenshot location set" grep -q "com.apple.screencapture location $home/Screenshots" "$log"
   check "Finder and Dock restarted" grep -q "killall Finder Dock SystemUIServer" "$log"
   check "Touch ID enabled for sudo" grep -qE '^auth +sufficient +pam_tid.so' "$home/pam.d/sudo_local"
+  check "pam_reattach comes right before pam_tid" pam_line_before "$home/pam.d/sudo_local" pam_reattach pam_tid
+  check "pam_reattach is optional and skips SSH" grep -qE "^auth +optional +$home/pam_reattach.so ignore_ssh$" "$home/pam.d/sudo_local"
+  check "pam_reattach not repeated" has_count "$home/pam.d/sudo_local" pam_reattach 1
   check "firewall turned on" grep -q "socketfilterfw --setglobalstate on" "$log"
   check "FileVault checked" grep -q "fdesetup status" "$log"
   check_not "FileVault never enabled" grep -q "fdesetup enable" "$log"
@@ -242,6 +252,9 @@ test_flow() {
   # Uninstall removes it all, and can run twice.
   check "uninstall succeeds" in_sandbox bash "$REPO/uninstall.sh"
   check "uninstall removes Homebrew" grep -q "sudo rm -rf /opt/homebrew/" "$log"
+  check "uninstall drops pam_reattach before Homebrew" in_sandbox_order "sudo tee $home/pam.d/sudo_local" "sudo rm -rf /opt/homebrew/"
+  check_not "uninstall removes pam_reattach line" grep -q pam_reattach "$home/pam.d/sudo_local"
+  check "uninstall keeps Touch ID" grep -qE '^auth +sufficient +pam_tid.so' "$home/pam.d/sudo_local"
   check_not "uninstall removes zshrc" test -e "$home/.zshrc"
   check_not "uninstall removes git config" test -e "$home/.gitconfig"
   check_not "uninstall removes Oh My Zsh" test -e "$home/.oh-my-zsh"
@@ -260,8 +273,28 @@ test_flow() {
   # Touch ID leaves an existing sudo_local alone, and copes with no template.
   new_home
   echo "custom" > "$home/pam.d/sudo_local"
+  : > "$home/pam_reattach.so"
   check "security step succeeds" in_sandbox bash "$REPO/setup.sh" macos-security
   check "sudo_local kept" grep -qx custom "$home/pam.d/sudo_local"
+  check_not "sudo_local without Touch ID not rewritten" grep -q "sudo tee" "$log"
+
+  # An existing sudo_local with Touch ID gains pam_reattach and keeps the rest.
+  new_home
+  printf 'auth  optional  other.so\nauth  sufficient  pam_tid.so\nauth  optional  last.so\n' > "$home/pam.d/sudo_local"
+  : > "$home/pam_reattach.so"
+  check "security step upgrades sudo_local" in_sandbox bash "$REPO/setup.sh" macos-security
+  check "upgrade keeps earlier line first" pam_line_before "$home/pam.d/sudo_local" other.so pam_reattach
+  check "upgrade puts pam_reattach before pam_tid" pam_line_before "$home/pam.d/sudo_local" pam_reattach pam_tid
+  check "upgrade keeps later line" pam_line_before "$home/pam.d/sudo_local" pam_tid last.so
+  check "upgrade backs up sudo_local" grep -q pam_tid "$home"/pam.d/sudo_local.backup.*
+  check_not "backup is from before the upgrade" grep -q pam_reattach "$home"/pam.d/sudo_local.backup.*
+
+  # Without the module, sudo_local must not name it: PAM could not load it.
+  new_home
+  check "security step succeeds without pam_reattach" in_sandbox bash "$REPO/setup.sh" macos-security
+  check "Touch ID enabled without pam_reattach" grep -q pam_tid "$home/pam.d/sudo_local"
+  check_not "no pam_reattach line without the module" grep -q pam_reattach "$home/pam.d/sudo_local"
+
   new_home
   rm "$home/pam.d/sudo_local.template"
   check "security step succeeds without template" in_sandbox bash "$REPO/setup.sh" macos-security

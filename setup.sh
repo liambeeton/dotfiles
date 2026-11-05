@@ -10,6 +10,7 @@ DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 COMPUTER_NAME="Aesoteric"
 BREW_BIN="${BREW_BIN:-/opt/homebrew/bin/brew}"
 PAM_DIR="${PAM_DIR:-/etc/pam.d}"
+PAM_REATTACH="${PAM_REATTACH:-/opt/homebrew/lib/pam/pam_reattach.so}"
 VSCODE_USER_DIR="$HOME/Library/Application Support/Code/User"
 
 vscode_extensions=(
@@ -202,17 +203,44 @@ setup_macos_defaults() {
   add_note "Log out and back in if the keyboard settings changed"
 }
 
+# pam_tid cannot reach Touch ID from a process outside the login session, as under
+# tmux. pam_reattach moves sudo back into it, for every terminal. It goes before
+# pam_tid, and ignore_ssh keeps a remote sudo from prompting at this Mac.
+add_pam_reattach() {
+  local sudo_local="$PAM_DIR/sudo_local" tid_line='^[[:space:]]*auth.*pam_tid[.]so' updated backup
+
+  if grep -qE '^[[:space:]]*auth.*pam_reattach' "$sudo_local"; then
+    print_success "pam_reattach already enabled for sudo"
+  elif ! grep -qE "$tid_line" "$sudo_local"; then
+    print_info "$sudo_local does not use Touch ID, leaving it alone"
+  elif [[ ! -f "$PAM_REATTACH" ]]; then
+    print_info "pam_reattach is not installed yet, skipping it for now"
+  else
+    # Read first: piping sed straight into tee would empty the file it is reading.
+    updated=$(awk -v line="auth       optional       $PAM_REATTACH ignore_ssh" -v tid="$tid_line" \
+      '$0 ~ tid && !done { print line; done = 1 } { print }' "$sudo_local")
+    backup="$sudo_local.backup.$(date +%Y%m%d%H%M%S)"
+    sudo cp -p "$sudo_local" "$backup"
+    print_info "Backed up $sudo_local to $backup"
+    printf '%s\n' "$updated" | sudo tee "$sudo_local" >/dev/null
+    print_success "pam_reattach enabled for sudo"
+  fi
+}
+
 # sudo_local survives macOS updates, unlike edits to /etc/pam.d/sudo. An existing
-# one is left alone, because it may hold other settings.
+# one keeps its settings, and only gains pam_reattach if it already uses Touch ID.
 setup_touch_id_sudo() {
   if [[ -f "$PAM_DIR/sudo_local" ]]; then
-    print_success "$PAM_DIR/sudo_local already exists, leaving it alone"
+    print_success "$PAM_DIR/sudo_local already exists"
   elif [[ -f "$PAM_DIR/sudo_local.template" ]]; then
     sed 's/^#auth/auth/' "$PAM_DIR/sudo_local.template" | sudo tee "$PAM_DIR/sudo_local" >/dev/null
     print_success "Touch ID enabled for sudo"
   else
     print_info "This macOS has no sudo_local template, skipping Touch ID for sudo"
+    return
   fi
+
+  add_pam_reattach
 }
 
 # Only checks FileVault. Enabling it prints the recovery key, which must not get
@@ -427,6 +455,8 @@ setup_tools() {
   run_step "Homebrew" install_homebrew
   load_homebrew_env
   run_step "Brewfile packages" install_tools
+  # Again, because on a new machine pam_reattach only exists from this point on.
+  run_step "Touch ID for sudo" setup_touch_id_sudo
   run_step "VS Code extensions" install_vscode_extensions
   run_step "Oh My Zsh" install_oh_my_zsh
   run_step "tmux plugin manager" install_tmux_plugin_manager
