@@ -65,6 +65,7 @@ cask "cmux"
 cask "cyberduck"
 cask "discord"
 cask "docker-desktop"
+cask "docker/tap/sbx", trusted: true
 cask "eqmac"
 cask "firefox"
 cask "font-fira-code"
