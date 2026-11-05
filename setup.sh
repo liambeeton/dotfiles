@@ -204,13 +204,6 @@ install_oh_my_zsh() {
       git clone "https://github.com/zsh-users/$plugin" "$custom/plugins/$plugin"
     fi
   done
-
-  if [[ -f "$HOME/z.sh" ]]; then
-    print_success "z.sh already installed"
-  else
-    curl -fsSL https://raw.githubusercontent.com/rupa/z/master/z.sh -o "$HOME/z.sh"
-    print_success "z.sh installed"
-  fi
 }
 
 setup_ghostty() {

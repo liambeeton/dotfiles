@@ -2,6 +2,7 @@
 # Run: make brew-bundle (or: brew bundle install --no-upgrade --file Brewfile)
 
 # CLI packages
+brew "atuin"
 brew "awscli"
 brew "bat"
 brew "difftastic"
@@ -11,6 +12,7 @@ brew "dotnet"
 brew "eza"
 brew "fd"
 brew "flyway"
+brew "fzf"
 brew "gh"
 brew "git"
 brew "git-delta"
@@ -42,6 +44,7 @@ brew "tree"
 brew "uv"
 brew "wget"
 brew "ykman"
+brew "zoxide"
 
 # GUI apps and fonts
 cask "1password"

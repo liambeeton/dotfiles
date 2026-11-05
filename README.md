@@ -58,7 +58,7 @@ Choose a full setup, tools only, or configuration only from a menu.
 | `make code-extensions` | Install VS Code extensions |
 | `make ghostty-install` | Link Ghostty config |
 | `make tmux-install` | Link tmux config and install its plugin manager |
-| `make zsh` | Install Oh My Zsh, plugins, and `z.sh` |
+| `make zsh` | Install Oh My Zsh and plugins |
 | `make node` | Install Node.js and global npm packages with mise |
 
 The full setup does not upgrade packages that are already installed. Run `make brew` for that.
@@ -71,6 +71,9 @@ The full setup does not upgrade packages that are already installed. Run `make b
 | `tmux` | Multiplexer. Press `prefix + I` once to install its plugins |
 | `starship` | Prompt. Setup creates the gruvbox-rainbow preset if you have no config |
 | `ripgrep`, `fd` | Search. `grep` and `find` are not aliased because their flags differ |
+| `fzf` | Fuzzy finder: `ctrl-t` for files, `alt-c` for directories |
+| `atuin` | Searchable history on `ctrl-r`. The up arrow is unchanged |
+| `zoxide` | Directory jumping with `z` and `zi` |
 | `git-delta`, `difftastic` | Diffs |
 | `mise` | Node.js and global npm packages, from `mise/config.toml`. Also reads `.nvmrc` and `.node-version` |
 | `uv` | Python |
@@ -119,4 +122,4 @@ The flow tests use a throwaway `HOME` with stubs for anything that installs or c
 make uninstall
 ```
 
-This removes Homebrew and casks, VS Code user data, Git dotfiles, mise, Ghostty and tmux config, Zsh files, Oh My Zsh, and shell history. Read `uninstall.sh` first: these commands permanently delete files from `$HOME` and application support directories. Use `make brew-uninstall`, `code-uninstall`, `git-uninstall`, `node-uninstall`, `terminal-uninstall`, or `zsh-uninstall` to remove one part.
+This removes Homebrew and casks, VS Code user data, Git dotfiles, mise, Ghostty and tmux config, Zsh files, Oh My Zsh, and shell history, including Atuin's. Read `uninstall.sh` first: these commands permanently delete files from `$HOME` and application support directories. Use `make brew-uninstall`, `code-uninstall`, `git-uninstall`, `node-uninstall`, `terminal-uninstall`, or `zsh-uninstall` to remove one part.

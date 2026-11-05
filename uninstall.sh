@@ -54,8 +54,12 @@ uninstall_zsh() {
   rm -f ~/.zshrc.pre-oh-my-zsh
   rm -f ~/.zshrc
   rm -f ~/z.sh
+  rm -f ~/.z
   rm -f ~/.config/starship.toml
 
+  rm -rf ~/.config/atuin
+  rm -rf ~/.local/share/atuin
+  rm -rf ~/Library/Application\ Support/zoxide
   rm -rf ~/.zsh
   rm -rf ~/.zsh_sessions
   rm -rf ~/.oh-my-zsh

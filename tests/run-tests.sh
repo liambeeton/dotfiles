@@ -51,7 +51,7 @@ test_static() {
 # Stubs log their arguments to $STUB_LOG and do nothing else.
 make_stubs() {
   local dir="$1" name
-  for name in brew code mise defaults chflags scutil sudo chsh; do
+  for name in brew code mise fzf atuin zoxide jenv direnv defaults chflags scutil sudo chsh; do
     # shellcheck disable=SC2016 # expands when the stub runs
     printf '#!/bin/sh\necho "%s $*" >> "$STUB_LOG"\n' "$name" > "$dir/$name"
   done
@@ -67,7 +67,7 @@ echo "starship $*" >> "$STUB_LOG"
 if [ "$1" = preset ]; then echo "$2" > "$4"; fi
 STUB
 
-  # Serves the installers that scripts pipe into a shell, and fakes downloads.
+  # Serves the installers that scripts pipe into a shell.
   cat > "$dir/curl" <<'STUB'
 #!/bin/sh
 echo "curl $*" >> "$STUB_LOG"
@@ -79,7 +79,6 @@ echo "omz $*" >> "$STUB_LOG"
 mkdir -p "$HOME/.oh-my-zsh/custom/plugins"
 SCRIPT
     ;;
-  *z.sh*) : > "$HOME/z.sh" ;;
 esac
 STUB
 
@@ -102,6 +101,14 @@ STUB
 in_sandbox() {
   env HOME="$home" PATH="$stubs:$(dirname "$(command -v bash)"):/usr/bin:/bin" SHELL=/bin/zsh \
     BREW_BIN="$stubs/brew" STUB_LOG="$log" FAKE_REPO="$REPO" "$@" </dev/null
+}
+
+# True if the first text appears in the stub log before the second.
+in_sandbox_order() {
+  local first second
+  first=$(grep -nF -- "$1" "$log" | head -n 1 | cut -d: -f1)
+  second=$(grep -nF -- "$2" "$log" | head -n 1 | cut -d: -f1)
+  [[ -n "$first" && -n "$second" && "$first" -lt "$second" ]]
 }
 
 new_home() {
@@ -197,6 +204,17 @@ test_flow() {
   check "local install succeeds" in_sandbox bash "$REPO/install.sh"
   check_not "local install does not clone the repo" grep -q "git clone .*liambeeton" "$log"
   check "local install links from checkout" links_to "$home/.gitconfig" "$REPO/git/.gitconfig"
+
+  # zsh.env loads cleanly, with the tools set up in the right order.
+  if command -v zsh >/dev/null 2>&1; then
+    new_home
+    mkdir -p "$home/.oh-my-zsh"
+    : > "$home/.oh-my-zsh/oh-my-zsh.sh"
+    check "zsh.env loads without errors" test -z "$(in_sandbox zsh -c "source '$REPO/zsh.env'" 2>&1)"
+    check "atuin set up after fzf" in_sandbox_order "fzf --zsh" "atuin init"
+    check "starship set up last" test "$(tail -n 1 "$log")" = "starship init zsh"
+    check_not "z.sh no longer loaded" grep -q 'z\.sh' "$REPO/zsh.env"
+  fi
 
   # Entry points.
   new_home
