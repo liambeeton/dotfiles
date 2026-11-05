@@ -51,7 +51,7 @@ test_static() {
 # Stubs log their arguments to $STUB_LOG and do nothing else.
 make_stubs() {
   local dir="$1" name
-  for name in brew code mise tldr fzf atuin zoxide direnv defaults chflags scutil sudo chsh; do
+  for name in brew code mise tldr fzf atuin zoxide direnv defaults chflags scutil chsh; do
     # shellcheck disable=SC2016 # expands when the stub runs
     printf '#!/bin/sh\necho "%s $*" >> "$STUB_LOG"\n' "$name" > "$dir/$name"
   done
@@ -59,6 +59,19 @@ make_stubs() {
   cat > "$dir/uname" <<'STUB'
 #!/bin/sh
 echo "${FAKE_UNAME:-Darwin}"
+STUB
+
+  # Runs tee for real, so tests can check what would be written.
+  cat > "$dir/sudo" <<'STUB'
+#!/bin/sh
+echo "sudo $*" >> "$STUB_LOG"
+if [ "$1" = tee ]; then cat > "$2"; fi
+STUB
+
+  cat > "$dir/fdesetup" <<'STUB'
+#!/bin/sh
+echo "fdesetup $*" >> "$STUB_LOG"
+echo "${FAKE_FILEVAULT:-FileVault is On.}"
 STUB
 
   # Fails like the real one does when a process it was given is not running.
@@ -107,7 +120,7 @@ STUB
 # Homebrew out: its shellenv would put the real tools ahead of the stubs on PATH.
 in_sandbox() {
   env HOME="$home" PATH="$stubs:$(dirname "$(command -v bash)"):/usr/bin:/bin" SHELL=/bin/zsh \
-    BREW_BIN="$stubs/brew" STUB_LOG="$log" FAKE_REPO="$REPO" "$@" </dev/null
+    BREW_BIN="$stubs/brew" PAM_DIR="$home/pam.d" STUB_LOG="$log" FAKE_REPO="$REPO" "$@" </dev/null
 }
 
 # True if the first text appears in the stub log before the second.
@@ -126,7 +139,8 @@ zsh_value() {
 new_home() {
   home="$sandbox/home$((++homes))"
   log="$home.log"
-  mkdir -p "$home"
+  mkdir -p "$home/pam.d"
+  printf '# uncomment to enable Touch ID\n#auth       sufficient     pam_tid.so\n' > "$home/pam.d/sudo_local.template"
   : > "$log"
 }
 
@@ -148,6 +162,10 @@ test_flow() {
   check "screenshot folder created" test -d "$home/Screenshots"
   check "screenshot location set" grep -q "com.apple.screencapture location $home/Screenshots" "$log"
   check "Finder and Dock restarted" grep -q "killall Finder Dock SystemUIServer" "$log"
+  check "Touch ID enabled for sudo" grep -qE '^auth +sufficient +pam_tid.so' "$home/pam.d/sudo_local"
+  check "firewall turned on" grep -q "socketfilterfw --setglobalstate on" "$log"
+  check "FileVault checked" grep -q "fdesetup status" "$log"
+  check_not "FileVault never enabled" grep -q "fdesetup enable" "$log"
   check "git config linked" links_to "$home/.gitconfig" "$REPO/git/.gitconfig"
   check "existing git config backed up" grep -q original "$home"/.gitconfig.backup.*
   check "VS Code settings linked" links_to "$home/Library/Application Support/Code/User/settings.json" "$REPO/code/settings.json"
@@ -169,6 +187,7 @@ test_flow() {
   # Running again changes nothing.
   : > "$log"
   check "second run succeeds" in_sandbox bash "$REPO/setup.sh" all
+  check_not "sudo_local not rewritten" grep -q "sudo tee" "$log"
   check "zshrc not duplicated" has_count "$home/.zshrc" "$REPO/zsh.env" 1
   check "zprofile not duplicated" has_count "$home/.zprofile" "brew shellenv" 1
   check "no second backup" test "$(find "$home" -maxdepth 1 -name '*.backup.*' | wc -l)" -eq 1
@@ -193,6 +212,24 @@ test_flow() {
   check "config succeeds over old symlink" in_sandbox bash "$REPO/setup.sh" config
   check_not "old zshrc symlink replaced" test -L "$home/.zshrc"
   check "zshrc sources zsh.env after migration" has_count "$home/.zshrc" "$REPO/zsh.env" 1
+
+  # Touch ID leaves an existing sudo_local alone, and copes with no template.
+  new_home
+  echo "custom" > "$home/pam.d/sudo_local"
+  check "security step succeeds" in_sandbox bash "$REPO/setup.sh" macos-security
+  check "sudo_local kept" grep -qx custom "$home/pam.d/sudo_local"
+  new_home
+  rm "$home/pam.d/sudo_local.template"
+  check "security step succeeds without template" in_sandbox bash "$REPO/setup.sh" macos-security
+  check_not "no sudo_local without template" test -e "$home/pam.d/sudo_local"
+
+  # FileVault being off warns with the command, and does not stop the setup.
+  new_home
+  check "FileVault off warns" bash -c '"$@" 2>&1 | grep -q "sudo fdesetup enable"' _ \
+    env HOME="$home" PATH="$stubs:$(dirname "$(command -v bash)"):/usr/bin:/bin" PAM_DIR="$home/pam.d" STUB_LOG="$log" \
+    FAKE_FILEVAULT="FileVault is Off." bash "$REPO/setup.sh" macos-security
+  check "FileVault off does not stop setup" in_sandbox env FAKE_FILEVAULT="FileVault is Off." bash "$REPO/setup.sh" macos-security
+  check_not "FileVault not enabled when off" grep -q "fdesetup enable" "$log"
 
   # An existing starship config is kept, and config-only runs install nothing.
   new_home

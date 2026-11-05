@@ -8,7 +8,7 @@ SETUP := $(BASH) "$(DOTFILES_DIR)/setup.sh"
 UNINSTALL := $(BASH) "$(DOTFILES_DIR)/uninstall.sh"
 
 .PHONY: help install uninstall sync check \
-	macos-defaults macos-hostname \
+	macos-defaults macos-security macos-hostname \
 	brew brew-bundle brew-uninstall \
 	code-install code-extensions code-uninstall \
 	ghostty-install tmux-install terminal-uninstall \
@@ -23,6 +23,7 @@ help:
 		'sync              Refresh symlinks and ~/.zshrc' \
 		'check             Run the test suite' \
 		'macos-defaults    Apply macOS defaults' \
+		'macos-security    Enable Touch ID for sudo and the firewall, check FileVault' \
 		'macos-hostname    Set macOS computer name' \
 		'brew              Install Homebrew, update it, and upgrade packages' \
 		'brew-bundle       Install what is missing from the Brewfile' \
@@ -54,6 +55,9 @@ check:
 
 macos-defaults:
 	$(SETUP) macos-defaults
+
+macos-security:
+	$(SETUP) macos-security
 
 macos-hostname:
 	$(SETUP) macos-hostname

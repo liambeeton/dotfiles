@@ -3,6 +3,7 @@
 Personal macOS dotfiles and bootstrap scripts. One command sets up a development workstation, and re-running it only does what is missing.
 
 - macOS Finder, Dock, keyboard, text input, screenshot, and Preview defaults
+- Touch ID for `sudo`, the firewall, and a FileVault check
 - Homebrew, CLI packages, and GUI casks from a `Brewfile`
 - Git configuration, global ignore rules, attributes, and commit template
 - VS Code settings, keybindings, and extensions
@@ -38,6 +39,8 @@ Using this command accepts Apple's license agreement for Rosetta.
 
 ## Install
 
+The setup only checks FileVault and warns if it is off, because enabling it prints a recovery key you must save. To enable it, run `sudo fdesetup enable`.
+
 ### One-click
 
 ```sh
@@ -72,6 +75,7 @@ Choose a full setup, tools only, or configuration only from a menu.
 | `make sync` | Refresh symlinks and `~/.zshrc` without installing anything |
 | `make check` | Run the test suite |
 | `make macos-defaults` | Apply macOS defaults and restart Finder and the Dock. Log out and back in for the keyboard settings |
+| `make macos-security` | Enable Touch ID for `sudo` and the firewall, and check FileVault |
 | `make macos-hostname` | Set the computer name (not part of the full setup) |
 | `make brew` | Install Homebrew, update it, and upgrade packages |
 | `make brew-bundle` | Install what is missing from the `Brewfile` |

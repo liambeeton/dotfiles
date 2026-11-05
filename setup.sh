@@ -9,6 +9,7 @@ set -euo pipefail
 DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 COMPUTER_NAME="Aesoteric"
 BREW_BIN="${BREW_BIN:-/opt/homebrew/bin/brew}"
+PAM_DIR="${PAM_DIR:-/etc/pam.d}"
 VSCODE_USER_DIR="$HOME/Library/Application Support/Code/User"
 
 vscode_extensions=(
@@ -106,6 +107,40 @@ setup_macos_defaults() {
 
   print_success "macOS defaults applied"
   print_info "Log out and back in for the keyboard settings to take effect"
+}
+
+# sudo_local survives macOS updates, unlike edits to /etc/pam.d/sudo. An existing
+# one is left alone, because it may hold other settings.
+setup_touch_id_sudo() {
+  if [[ -f "$PAM_DIR/sudo_local" ]]; then
+    print_success "$PAM_DIR/sudo_local already exists, leaving it alone"
+  elif [[ -f "$PAM_DIR/sudo_local.template" ]]; then
+    sed 's/^#auth/auth/' "$PAM_DIR/sudo_local.template" | sudo tee "$PAM_DIR/sudo_local" >/dev/null
+    print_success "Touch ID enabled for sudo"
+  else
+    print_info "This macOS has no sudo_local template, skipping Touch ID for sudo"
+  fi
+}
+
+# Only checks FileVault. Enabling it prints the recovery key, which must not get
+# lost in the middle of the install output.
+check_filevault() {
+  if fdesetup status | grep -q "FileVault is On"; then
+    print_success "FileVault is on"
+  else
+    print_error "FileVault does not appear to be on. To enable it, run this and save the recovery key it prints: sudo fdesetup enable"
+  fi
+}
+
+setup_macos_security() {
+  print_section "macOS security"
+
+  setup_touch_id_sudo
+
+  sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
+  print_success "Firewall on"
+
+  check_filevault
 }
 
 set_hostname() {
@@ -320,6 +355,7 @@ setup_configs() {
 
 setup_all() {
   setup_macos_defaults
+  setup_macos_security
   setup_tools
   setup_configs
   set_zsh_default
@@ -357,6 +393,7 @@ Usage: ./setup.sh [step]
   tools            Install tools only
   config           Refresh symlinks and ~/.zshrc
   macos-defaults   Apply macOS defaults
+  macos-security   Enable Touch ID for sudo and the firewall, check FileVault
   macos-hostname   Set macOS computer name
   brew             Install Homebrew, update it, and upgrade packages
   brew-bundle      Install what is missing from the Brewfile
@@ -381,6 +418,7 @@ main() {
     tools) setup_tools ;;
     config) setup_configs ;;
     macos-defaults) setup_macos_defaults ;;
+    macos-security) setup_macos_security ;;
     macos-hostname) set_hostname ;;
     brew)
       install_homebrew
