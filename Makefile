@@ -20,7 +20,7 @@ help:
 		'install           Run full dotfiles install' \
 		'uninstall         Run full dotfiles uninstall' \
 		'sync              Refresh symlinks and ~/.zshrc' \
-		'check             Verify shell script headers and syntax' \
+		'check             Run the test suite' \
 		'macos-defaults    Apply macOS defaults' \
 		'macos-hostname    Set macOS computer name' \
 		'brew              Install Homebrew, update it, and upgrade packages' \
@@ -46,12 +46,7 @@ sync:
 	$(SETUP) config
 
 check:
-	@while IFS= read -r script; do \
-		[[ "$$(sed -n '1p' "$$script")" == '#!/bin/bash' ]] || { echo "$$script: missing #!/bin/bash"; exit 1; }; \
-		[[ -z "$$(sed -n '2p' "$$script")" ]] || { echo "$$script: expected blank line after shebang"; exit 1; }; \
-		[[ "$$(sed -n '3p' "$$script")" == 'set -euo pipefail' ]] || { echo "$$script: missing set -euo pipefail"; exit 1; }; \
-		bash -n "$$script"; \
-	done < <(find "$(DOTFILES_DIR)" -type f -name '*.sh' -not -path '*/.git/*' | sort)
+	$(BASH) "$(DOTFILES_DIR)/tests/run-tests.sh"
 
 macos-defaults:
 	$(SETUP) macos-defaults

@@ -47,7 +47,7 @@ Choose a full setup, tools only, or configuration only from a menu.
 | --- | --- |
 | `make install` | Full setup, pulling the latest changes first |
 | `make sync` | Refresh symlinks and `~/.zshrc` without installing anything |
-| `make check` | Verify shell script headers and syntax |
+| `make check` | Run the test suite |
 | `make macos-defaults` | Apply Finder, screenshot, Preview, and Library visibility defaults |
 | `make macos-hostname` | Set the computer name (not part of the full setup) |
 | `make brew` | Install Homebrew, update it, and upgrade packages |
@@ -70,7 +70,8 @@ The full setup does not upgrade packages that are already installed. Run `make b
 |-- uninstall.sh  Every removal step
 |-- zsh.env       Shared Zsh configuration, sourced by ~/.zshrc
 |-- code/         VS Code settings and keybindings
-`-- git/          Git config, ignore rules, attributes, commit template
+|-- git/          Git config, ignore rules, attributes, commit template
+`-- tests/        Test suite
 ```
 
 ## Customizing
@@ -81,6 +82,16 @@ The full setup does not upgrade packages that are already installed. Run `make b
 - **Shell config for one machine:** edit `~/.zshrc`. It is not tracked, and it only needs to keep the line that sources `zsh.env`. Installers that append to it no longer dirty the repo.
 
 Git and VS Code files are symlinked, so edits take effect immediately. An existing file is copied to `<file>.backup.<timestamp>` before it is replaced or edited.
+
+## Testing
+
+```sh
+make check                 # everything
+tests/run-tests.sh static  # script headers, syntax, shellcheck, Brewfile
+tests/run-tests.sh flow    # install, re-run, migration, and uninstall flows
+```
+
+The flow tests use a throwaway `HOME` with stubs for anything that installs or changes the system, so they are safe to run on a configured machine. They check the scripts' logic, not that Homebrew or the installers really work.
 
 ## Uninstall
 
