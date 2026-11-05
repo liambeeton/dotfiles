@@ -4,26 +4,28 @@ SHELL := /bin/bash
 
 DOTFILES_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 BASH := /bin/bash
+SETUP := $(BASH) "$(DOTFILES_DIR)/setup.sh"
+UNINSTALL := $(BASH) "$(DOTFILES_DIR)/uninstall.sh"
 
-.PHONY: help install uninstall remote-install \
-	check \
+.PHONY: help install uninstall remote-install sync check \
 	macos-defaults macos-hostname \
 	brew brew-bundle brew-uninstall \
 	code-install code-extensions code-uninstall \
 	node node-uninstall \
 	zsh zsh-uninstall \
-	git-uninstall
+	git-install git-uninstall
 
 help:
 	@printf '%s\n' \
 		'install           Run full dotfiles install' \
 		'uninstall         Run full dotfiles uninstall' \
 		'remote-install    Run remote bootstrap install' \
+		'sync              Refresh symlinks' \
 		'check             Verify shell script headers and syntax' \
 		'macos-defaults    Apply macOS defaults' \
 		'macos-hostname    Set macOS computer name' \
-		'brew              Install Homebrew and update it' \
-		'brew-bundle       Install packages from the Brewfile' \
+		'brew              Install Homebrew, update it, and upgrade packages' \
+		'brew-bundle       Install what is missing from the Brewfile' \
 		'brew-uninstall    Remove Homebrew, casks, and /opt/homebrew' \
 		'code-install      Link VS Code settings and keybindings' \
 		'code-extensions   Install VS Code extensions' \
@@ -32,16 +34,20 @@ help:
 		'node-uninstall    Remove Volta files' \
 		'zsh               Install Oh My Zsh and plugins' \
 		'zsh-uninstall     Remove Zsh and Oh My Zsh files' \
+		'git-install       Link Git dotfiles' \
 		'git-uninstall     Remove Git dotfiles'
 
 install:
 	$(BASH) "$(DOTFILES_DIR)/install.sh"
 
 uninstall:
-	$(BASH) "$(DOTFILES_DIR)/uninstall.sh"
+	$(UNINSTALL)
 
 remote-install:
 	$(BASH) "$(DOTFILES_DIR)/remote-install.sh"
+
+sync:
+	$(SETUP) config
 
 check:
 	@while IFS= read -r script; do \
@@ -52,40 +58,43 @@ check:
 	done < <(find "$(DOTFILES_DIR)" -type f -name '*.sh' -not -path '*/.git/*' | sort)
 
 macos-defaults:
-	$(BASH) "$(DOTFILES_DIR)/macos/defaults.sh"
+	$(SETUP) macos-defaults
 
 macos-hostname:
-	$(BASH) "$(DOTFILES_DIR)/macos/hostname.sh"
+	$(SETUP) macos-hostname
 
 brew:
-	$(BASH) "$(DOTFILES_DIR)/brew/brew.sh"
+	$(SETUP) brew
 
 brew-bundle:
-	brew bundle install --no-upgrade --file "$(DOTFILES_DIR)/Brewfile"
+	$(SETUP) brew-bundle
 
 brew-uninstall:
-	$(BASH) "$(DOTFILES_DIR)/brew/uninstall.sh"
+	$(UNINSTALL) brew
 
 code-install:
-	$(BASH) "$(DOTFILES_DIR)/code/install.sh"
+	$(SETUP) code
 
 code-extensions:
-	$(BASH) "$(DOTFILES_DIR)/code/extensions.sh"
+	$(SETUP) code-extensions
 
 code-uninstall:
-	$(BASH) "$(DOTFILES_DIR)/code/uninstall.sh"
+	$(UNINSTALL) code
 
 node:
-	$(BASH) "$(DOTFILES_DIR)/node/npm.sh"
+	$(SETUP) node
 
 node-uninstall:
-	$(BASH) "$(DOTFILES_DIR)/node/uninstall.sh"
+	$(UNINSTALL) node
 
 zsh:
-	$(BASH) "$(DOTFILES_DIR)/zsh/zsh.sh"
+	$(SETUP) zsh
 
 zsh-uninstall:
-	$(BASH) "$(DOTFILES_DIR)/zsh/uninstall.sh"
+	$(UNINSTALL) zsh
+
+git-install:
+	$(SETUP) git
 
 git-uninstall:
-	$(BASH) "$(DOTFILES_DIR)/git/uninstall.sh"
+	$(UNINSTALL) git

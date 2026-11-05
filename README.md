@@ -1,29 +1,21 @@
 # dotfiles
 
-Personal macOS dotfiles and bootstrap scripts.
-
-This repo sets up a development workstation with:
+Personal macOS dotfiles and bootstrap scripts. One command sets up a development workstation, and re-running it only does what is missing.
 
 - macOS Finder, screenshot, and Preview defaults
-- Homebrew, CLI packages, and GUI casks
+- Homebrew, CLI packages, and GUI casks from a `Brewfile`
 - Git configuration, global ignore rules, attributes, and commit template
 - VS Code settings, keybindings, and extensions
 - Zsh, Oh My Zsh, plugins, aliases, and shell paths
 - Node.js through Volta plus common global npm packages
 
-## Requirements
-
-- macOS
-- Bash
-- Git
-- `curl` or `wget`
-- Admin access for Homebrew, macOS defaults, and hostname changes
-
 These scripts are personal and intentionally opinionated. Review them before running on a machine you do not want fully reconfigured.
+
+Requires macOS on Apple Silicon (Homebrew paths assume `/opt/homebrew`) and admin access.
 
 ## Install
 
-Clone to `~/.dotfiles` and run the full installer:
+### From a clone
 
 ```sh
 git clone https://github.com/liambeeton/dotfiles.git ~/.dotfiles
@@ -31,80 +23,56 @@ cd ~/.dotfiles
 make install
 ```
 
-The full install runs:
+### Interactive
 
-1. `macos/defaults.sh`
-2. `brew/brew.sh`
-3. `brew bundle` from the `Brewfile`
-4. Git dotfile symlinks
-5. `code/extensions.sh`
-6. VS Code settings and keybindings symlinks
-7. `zsh/zsh.sh`
-8. `.zshrc` symlink
-9. `node/npm.sh`
+```sh
+./setup.sh
+```
+
+Choose a full setup, tools only, or configuration only from a menu.
 
 ## Common Commands
 
-```sh
-make help
-make install
-make uninstall
-make check
-./sync.sh
-```
-
-`make help` lists every available task. Use targeted tasks when you only want one part of the setup:
+`make help` lists every task. Each one calls a step in `setup.sh` or `uninstall.sh`.
 
 | Target | Purpose |
 | --- | --- |
+| `make install` | Full setup, pulling the latest changes first |
+| `make sync` | Refresh symlinks without installing anything |
+| `make check` | Verify shell script headers and syntax |
 | `make macos-defaults` | Apply Finder, screenshot, Preview, and Library visibility defaults |
-| `make macos-hostname` | Set macOS computer names from `macos/hostname.sh` |
-| `make brew` | Install and update Homebrew |
-| `make brew-bundle` | Install CLI packages, GUI apps, and fonts from the `Brewfile` |
+| `make macos-hostname` | Set the computer name (not part of the full setup) |
+| `make brew` | Install Homebrew, update it, and upgrade packages |
+| `make brew-bundle` | Install what is missing from the `Brewfile` |
+| `make git-install` | Link Git dotfiles |
 | `make code-install` | Link VS Code settings and keybindings |
 | `make code-extensions` | Install VS Code extensions |
-| `make node` | Install Volta, Node.js, and global npm packages |
 | `make zsh` | Install Oh My Zsh, plugins, and `z.sh` |
-| `make git-uninstall` | Remove linked Git dotfiles from `$HOME` |
+| `make node` | Install Volta, Node.js, and global npm packages |
 
-## Sync Existing Files
-
-Refresh symlinks without reinstalling packages:
-
-```sh
-./sync.sh
-```
-
-This links:
-
-- Git config files into `$HOME`
-- VS Code settings into `~/Library/Application Support/Code/User`
-- Zsh config into `$HOME`
+The full setup does not upgrade packages that are already installed. Run `make brew` for that.
 
 ## Layout
 
 ```text
 .
-|-- Brewfile           CLI packages, GUI apps, and fonts
-|-- brew/              Homebrew installer and uninstall script
-|-- code/              VS Code settings, keybindings, extensions, install/uninstall scripts
-|-- git/               Git config, ignore rules, attributes, commit template
-|-- macos/             macOS defaults and hostname scripts
-|-- node/              Volta, Node.js, npm global packages
-|-- zsh/               Oh My Zsh setup, plugins, .zshrc, uninstall script
-|-- install.sh         Full local installer
+|-- Brewfile      CLI packages, GUI apps, and fonts
+|-- install.sh    Pulls the latest changes, then runs setup.sh
 |-- remote-install.sh  Bootstrap installer for fresh machines
-|-- sync.sh            Symlink refresh script
-`-- uninstall.sh       Full uninstall script
+|-- setup.sh      Every setup step, as functions, plus the menu
+|-- uninstall.sh  Every removal step
+|-- code/         VS Code settings and keybindings
+|-- git/          Git config, ignore rules, attributes, commit template
+`-- zsh/          Zsh configuration
 ```
 
-## Notes
+## Customizing
 
-- `install.sh` pulls `origin main` when the repo already has a `.git` directory.
-- Homebrew setup assumes Apple Silicon paths under `/opt/homebrew`.
-- `macos/hostname.sh` sets the computer name to `Aesoteric`.
-- `remote-install.sh` currently downloads the GitHub `master` tarball. Update that script if the remote branch should be `main`.
-- `make check` currently expects scripts to use `#!/bin/bash`, while repo scripts use `#!/usr/bin/env bash`.
+- **Packages:** edit `Brewfile`.
+- **VS Code extensions, npm packages, computer name:** edit the values at the top of `setup.sh`.
+- **Shell config:** edit `zsh/.zshrc`.
+
+Git, VS Code, and Zsh files are symlinked, so edits take effect immediately. An existing file is copied to `<file>.backup.<timestamp>` before it is replaced or edited.
 
 ## Uninstall
 
@@ -112,4 +80,4 @@ This links:
 make uninstall
 ```
 
-The uninstall path removes Homebrew/casks, VS Code user files, Git dotfiles, Volta, Zsh files, Oh My Zsh, and related shell state. Read each `*/uninstall.sh` first because these commands delete files from `$HOME` and application support directories.
+This removes Homebrew and casks, VS Code user data, Git dotfiles, Volta, Zsh files, Oh My Zsh, and shell history. Read `uninstall.sh` first: these commands permanently delete files from `$HOME` and application support directories. Use `make brew-uninstall`, `code-uninstall`, `git-uninstall`, `node-uninstall`, or `zsh-uninstall` to remove one part.
