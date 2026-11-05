@@ -44,7 +44,8 @@ test_static() {
     check "zsh.env: syntax" zsh -n "$REPO/zsh.env"
   fi
 
-  check_not "Brewfile: only brew and cask lines" grep -vE '^(#.*|(brew|cask) "[^"]+")?$' "$REPO/Brewfile"
+  check_not "Brewfile: only brew and cask lines" grep -vE '^(#.*|(brew|cask) "[^"]+"(, trusted: true)?)?$' "$REPO/Brewfile"
+  check_not "Brewfile: trust only names from other taps" grep -E '^(brew|cask) "[^/"]+", trusted' "$REPO/Brewfile"
   check_not "Brewfile: no duplicates" bash -c "grep -E '^(brew|cask) ' '$REPO/Brewfile' | sort | uniq -d | grep ."
 }
 
