@@ -2,7 +2,7 @@
 
 Personal macOS dotfiles and bootstrap scripts. One command sets up a development workstation, and re-running it only does what is missing.
 
-- macOS Finder, screenshot, and Preview defaults
+- macOS Finder, Dock, keyboard, text input, screenshot, and Preview defaults
 - Homebrew, CLI packages, and GUI casks from a `Brewfile`
 - Git configuration, global ignore rules, attributes, and commit template
 - VS Code settings, keybindings, and extensions
@@ -71,7 +71,7 @@ Choose a full setup, tools only, or configuration only from a menu.
 | `make install` | Full setup, pulling the latest changes first |
 | `make sync` | Refresh symlinks and `~/.zshrc` without installing anything |
 | `make check` | Run the test suite |
-| `make macos-defaults` | Apply Finder, screenshot, Preview, and Library visibility defaults |
+| `make macos-defaults` | Apply macOS defaults and restart Finder and the Dock. Log out and back in for the keyboard settings |
 | `make macos-hostname` | Set the computer name (not part of the full setup) |
 | `make brew` | Install Homebrew, update it, and upgrade packages |
 | `make brew-bundle` | Install what is missing from the `Brewfile` |

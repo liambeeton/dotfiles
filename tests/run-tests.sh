@@ -61,6 +61,13 @@ make_stubs() {
 echo "${FAKE_UNAME:-Darwin}"
 STUB
 
+  # Fails like the real one does when a process it was given is not running.
+  cat > "$dir/killall" <<'STUB'
+#!/bin/sh
+echo "killall $*" >> "$STUB_LOG"
+exit 1
+STUB
+
   cat > "$dir/starship" <<'STUB'
 #!/bin/sh
 echo "starship $*" >> "$STUB_LOG"
@@ -137,6 +144,10 @@ test_flow() {
   new_home
   echo "original" > "$home/.gitconfig"
   check "full setup succeeds" in_sandbox bash "$REPO/setup.sh" all
+  check "key repeat set" grep -q "defaults write NSGlobalDomain KeyRepeat -int 2" "$log"
+  check "screenshot folder created" test -d "$home/Screenshots"
+  check "screenshot location set" grep -q "com.apple.screencapture location $home/Screenshots" "$log"
+  check "Finder and Dock restarted" grep -q "killall Finder Dock SystemUIServer" "$log"
   check "git config linked" links_to "$home/.gitconfig" "$REPO/git/.gitconfig"
   check "existing git config backed up" grep -q original "$home"/.gitconfig.backup.*
   check "VS Code settings linked" links_to "$home/Library/Application Support/Code/User/settings.json" "$REPO/code/settings.json"

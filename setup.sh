@@ -63,6 +63,10 @@ setup_macos_defaults() {
   # Take screenshots as jpg (usually smaller size) and not png
   defaults write com.apple.screencapture type jpg
 
+  # Save screenshots to their own folder instead of the Desktop
+  mkdir -p ~/Screenshots
+  defaults write com.apple.screencapture location ~/Screenshots
+
   # Do not open previous previewed files (e.g. PDFs) when opening a new one
   defaults write com.apple.Preview ApplePersistenceIgnoreState YES
 
@@ -70,7 +74,10 @@ setup_macos_defaults() {
   chflags nohidden ~/Library
 
   # Show hidden files
-  defaults write com.apple.finder AppleShowAllFiles YES
+  defaults write com.apple.finder AppleShowAllFiles -bool true
+
+  # Show all file extensions
+  defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 
   # Show path bar
   defaults write com.apple.finder ShowPathbar -bool true
@@ -78,7 +85,27 @@ setup_macos_defaults() {
   # Show status bar
   defaults write com.apple.finder ShowStatusBar -bool true
 
+  # Fast key repeat, and no accent popup when holding a key (helps in Vim)
+  defaults write NSGlobalDomain KeyRepeat -int 2
+  defaults write NSGlobalDomain InitialKeyRepeat -int 15
+  defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+
+  # Stop smart quotes and dashes from mangling pasted code
+  defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+  defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+
+  # No .DS_Store files on network shares or USB drives
+  defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+  defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+
+  # Auto-hide the Dock
+  defaults write com.apple.dock autohide -bool true
+
+  # killall returns an error if any of these is not running, such as over SSH.
+  killall Finder Dock SystemUIServer || true
+
   print_success "macOS defaults applied"
+  print_info "Log out and back in for the keyboard settings to take effect"
 }
 
 set_hostname() {
