@@ -9,6 +9,21 @@ set -euo pipefail
 REPO_URL="${REPO_URL:-https://github.com/liambeeton/dotfiles.git}"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/.dotfiles}"
 
+# Does not clear the screen, so earlier output stays in the scrollback.
+print_banner() {
+  local cyan='' bold='' reset=''
+  if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+    cyan='\033[0;36m'
+    bold='\033[1m'
+    reset='\033[0m'
+  fi
+
+  printf '%b\n' "${cyan}╭──────────────────────────────────────╮${reset}"
+  printf '%b\n' "${cyan}│${reset}  ${bold}dotfiles${reset}                            ${cyan}│${reset}"
+  printf '%b\n' "${cyan}│${reset}  macOS development workstation setup ${cyan}│${reset}"
+  printf '%b\n' "${cyan}╰──────────────────────────────────────╯${reset}"
+}
+
 # Installing Homebrew also installs the Xcode Command Line Tools, which provide
 # git, so this has to happen before the repo is cloned.
 ensure_homebrew() {
@@ -41,6 +56,7 @@ main() {
     exit 1
   fi
 
+  print_banner
   ensure_homebrew
 
   local repo_dir

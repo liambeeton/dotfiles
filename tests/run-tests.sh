@@ -303,6 +303,12 @@ test_flow() {
   check_not "local install does not clone the repo" grep -q "git clone .*liambeeton" "$log"
   check "local install links from checkout" links_to "$home/.gitconfig" "$REPO/git/.gitconfig"
 
+  # The banner comes first, and output that is not a terminal has no color codes.
+  new_home
+  capture bash "$REPO/install.sh"
+  check "banner comes first" test "$(sed -n 2p "$out" | grep -c dotfiles)" -eq 1
+  check_not "no color codes outside a terminal" grep -q "$(printf '\033')" "$out"
+
   # A successful run ends with a summary of what is left to do.
   new_home
   capture env FAKE_FILEVAULT="FileVault is Off." bash "$REPO/setup.sh" all

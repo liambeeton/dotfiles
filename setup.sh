@@ -17,11 +17,20 @@ vscode_extensions=(
   vscode-icons-team.vscode-icons
 )
 
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-CYAN='\033[0;36m'
-NC='\033[0m'
+# Colors only in a terminal, so that saved logs stay readable.
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  GREEN='\033[0;32m'
+  YELLOW='\033[1;33m'
+  RED='\033[0;31m'
+  CYAN='\033[0;36m'
+  NC='\033[0m'
+else
+  GREEN=''
+  YELLOW=''
+  RED=''
+  CYAN=''
+  NC=''
+fi
 
 print_section() { echo -e "\n${CYAN}=== $1 ===${NC}"; }
 print_success() { echo -e "${GREEN}✓${NC} $1"; }
