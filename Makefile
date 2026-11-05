@@ -7,7 +7,7 @@ BASH := /bin/bash
 SETUP := $(BASH) "$(DOTFILES_DIR)/setup.sh"
 UNINSTALL := $(BASH) "$(DOTFILES_DIR)/uninstall.sh"
 
-.PHONY: help install uninstall sync check \
+.PHONY: help install uninstall sync doctor check \
 	macos-defaults macos-security macos-hostname \
 	brew brew-bundle brew-uninstall \
 	code-install code-extensions code-uninstall \
@@ -21,6 +21,7 @@ help:
 		'install           Run full dotfiles install' \
 		'uninstall         Run full dotfiles uninstall' \
 		'sync              Refresh symlinks and ~/.zshrc' \
+		'doctor            Report what has drifted from this repo, changing nothing' \
 		'check             Run the test suite' \
 		'macos-defaults    Apply macOS defaults' \
 		'macos-security    Enable Touch ID for sudo and the firewall, check FileVault' \
@@ -49,6 +50,9 @@ uninstall:
 
 sync:
 	$(SETUP) config
+
+doctor:
+	$(SETUP) doctor
 
 check:
 	$(BASH) "$(DOTFILES_DIR)/tests/run-tests.sh"

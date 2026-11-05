@@ -117,6 +117,31 @@ link_file() {
   print_success "Linked $dest"
 }
 
+# Every symlink this repo manages, as <file in the repo>|<where it is linked>.
+# Used by both setup and doctor.
+print_links() {
+  cat <<EOF
+git/.gitconfig|$HOME/.gitconfig
+git/.gitmessage.txt|$HOME/.gitmessage.txt
+git/.global_gitattributes|$HOME/.global_gitattributes
+git/.global_gitignore|$HOME/.global_gitignore
+code/keybindings.json|$VSCODE_USER_DIR/keybindings.json
+code/settings.json|$VSCODE_USER_DIR/settings.json
+ghostty/config|$HOME/.config/ghostty/config
+tmux/.tmux.conf|$HOME/.tmux.conf
+mise/config.toml|$HOME/.config/mise/config.toml
+EOF
+}
+
+# Links the files from one folder of the repo.
+link_folder() {
+  local src dest
+  while IFS='|' read -r src dest; do
+    mkdir -p "$(dirname "$dest")"
+    link_file "$DOTFILES_DIR/$src" "$dest"
+  done < <(print_links | grep "^$1/")
+}
+
 setup_macos_defaults() {
   print_section "macOS defaults"
 
@@ -260,19 +285,12 @@ install_tools() {
 
 setup_git() {
   print_section "Git"
-
-  local file
-  for file in .gitconfig .gitmessage.txt .global_gitattributes .global_gitignore; do
-    link_file "$DOTFILES_DIR/git/$file" "$HOME/$file"
-  done
+  link_folder git
 }
 
 setup_vscode() {
   print_section "VS Code settings"
-
-  mkdir -p "$VSCODE_USER_DIR"
-  link_file "$DOTFILES_DIR/code/keybindings.json" "$VSCODE_USER_DIR/keybindings.json"
-  link_file "$DOTFILES_DIR/code/settings.json" "$VSCODE_USER_DIR/settings.json"
+  link_folder code
 }
 
 install_vscode_extensions() {
@@ -336,14 +354,12 @@ install_oh_my_zsh() {
 
 setup_ghostty() {
   print_section "Ghostty"
-
-  mkdir -p "$HOME/.config/ghostty"
-  link_file "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
+  link_folder ghostty
 }
 
 setup_tmux() {
   print_section "tmux"
-  link_file "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
+  link_folder tmux
 }
 
 install_tmux_plugin_manager() {
@@ -378,9 +394,7 @@ setup_starship() {
 
 setup_mise() {
   print_section "mise"
-
-  mkdir -p "$HOME/.config/mise"
-  link_file "$DOTFILES_DIR/mise/config.toml" "$HOME/.config/mise/config.toml"
+  link_folder mise
 }
 
 install_mise_tools() {
@@ -432,6 +446,84 @@ setup_all() {
   run_with_summary setup_everything
 }
 
+report_problem() {
+  print_error "$1"
+  DOCTOR_PROBLEMS=$((DOCTOR_PROBLEMS + 1))
+}
+
+doctor_brew() {
+  print_section "Brewfile"
+
+  if ! command -v brew >/dev/null 2>&1; then
+    report_problem "Homebrew is not installed. Fix: make install"
+    return
+  fi
+
+  # Auto-update would change Homebrew, and doctor only reads.
+  if HOMEBREW_NO_AUTO_UPDATE=1 brew bundle check --verbose --no-upgrade --file "$DOTFILES_DIR/Brewfile"; then
+    print_success "Everything in the Brewfile is installed"
+  else
+    report_problem "Brewfile packages are missing. Fix: make brew-bundle"
+  fi
+}
+
+doctor_mise() {
+  print_section "mise"
+
+  if ! command -v mise >/dev/null 2>&1; then
+    report_problem "mise is not installed. Fix: make brew-bundle"
+    return
+  fi
+
+  # Run from $HOME, so that the version files of the project you are in do not
+  # affect the result.
+  local output problems
+  if output=$(cd "$HOME" && mise doctor 2>&1); then
+    print_success "mise reports no problems"
+  else
+    # The full report is long, so show only its list of problems if it has one.
+    problems=$(printf '%s\n' "$output" | sed -n '/problems* found:/,$p')
+    printf '%s\n' "${problems:-$output}"
+    report_problem "mise reports problems. Fix: make mise, and restart your terminal if it says mise is not activated"
+  fi
+}
+
+doctor_links() {
+  print_section "Config files"
+
+  local src dest
+  while IFS='|' read -r src dest; do
+    if [[ -e "$dest" && -L "$dest" && "$(readlink "$dest")" == "$DOTFILES_DIR/$src" ]]; then
+      print_success "$dest"
+    else
+      report_problem "$dest is not linked to $src. Fix: make sync"
+    fi
+  done < <(print_links)
+
+  if grep -qsF "$DOTFILES_DIR/zsh.env" "$HOME/.zshrc"; then
+    print_success "$HOME/.zshrc sources zsh.env"
+  else
+    report_problem "$HOME/.zshrc does not source zsh.env. Fix: make sync"
+  fi
+}
+
+# Reports what has drifted from this repo. Only reads, so it fixes nothing.
+run_doctor() {
+  DOCTOR_PROBLEMS=0
+
+  load_homebrew_env
+  doctor_brew
+  doctor_mise
+  doctor_links
+
+  print_section "Doctor"
+  if [[ "$DOCTOR_PROBLEMS" -gt 0 ]]; then
+    print_error "Found $DOCTOR_PROBLEMS problem(s), listed above with how to fix them"
+    exit 1
+  fi
+  print_success "No problems found"
+}
+
 prompt_menu() {
   echo "Select what to run:"
   echo "1) Full setup (install all tools + configure)"
@@ -461,6 +553,7 @@ Usage: ./setup.sh [step]
   all              Full setup
   tools            Install tools only
   config           Refresh symlinks and ~/.zshrc
+  doctor           Report what has drifted from this repo, changing nothing
   macos-defaults   Apply macOS defaults
   macos-security   Enable Touch ID for sudo and the firewall, check FileVault
   macos-hostname   Set macOS computer name
@@ -486,6 +579,7 @@ main() {
     all) setup_all ;;
     tools) run_with_summary setup_tools ;;
     config) run_with_summary setup_configs ;;
+    doctor) run_doctor ;;
     macos-defaults) setup_macos_defaults ;;
     macos-security) setup_macos_security ;;
     macos-hostname) set_hostname ;;

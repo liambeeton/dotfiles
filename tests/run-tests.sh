@@ -51,7 +51,7 @@ test_static() {
 # Stubs log their arguments to $STUB_LOG and do nothing else.
 make_stubs() {
   local dir="$1" name
-  for name in code mise tldr fzf atuin zoxide direnv defaults chflags scutil chsh; do
+  for name in code tldr fzf atuin zoxide direnv defaults chflags scutil chsh; do
     # shellcheck disable=SC2016 # expands when the stub runs
     printf '#!/bin/sh\necho "%s $*" >> "$STUB_LOG"\n' "$name" > "$dir/$name"
   done
@@ -67,8 +67,25 @@ STUB
 echo "brew $*" >> "$STUB_LOG"
 case "$1" in
   shellenv) echo "export PATH=\"$(dirname "$0"):\$PATH\"" ;;
-  bundle) exit "${FAKE_BREW_STATUS:-0}" ;;
+  bundle)
+    echo "HOMEBREW_NO_AUTO_UPDATE=${HOMEBREW_NO_AUTO_UPDATE:-unset}" >> "$STUB_LOG"
+    if [ "${FAKE_BREW_STATUS:-0}" != 0 ]; then echo "Cask ghostty needs to be installed"; fi
+    exit "${FAKE_BREW_STATUS:-0}"
+    ;;
 esac
+STUB
+
+  # FAKE_MISE_STATUS makes doctor report a problem, after the long report it prints.
+  cat > "$dir/mise" <<'STUB'
+#!/bin/sh
+echo "mise $*" >> "$STUB_LOG"
+if [ "$1" = doctor ]; then
+  echo "mise ran in $PWD" >> "$STUB_LOG"
+  if [ "${FAKE_MISE_STATUS:-0}" != 0 ]; then
+    printf 'long report\n1 problem found:\n\n1. tool npm:eslint is not installed\n'
+    exit "$FAKE_MISE_STATUS"
+  fi
+fi
 STUB
 
   # Runs tee for real, so tests can check what would be written.
@@ -153,6 +170,11 @@ summary_has() {
   sed -n '/=== Summary/,$p' "$out" | grep -qF -- "$1"
 }
 
+# Prints every path under the sandbox HOME with its type, target, size, and time.
+snapshot_home() {
+  find "$home" -exec ls -ld {} + | sort
+}
+
 # Prints a variable as zsh.env leaves it.
 zsh_value() {
   in_sandbox env HOMEBREW_PREFIX=/fake zsh -c "source '$REPO/zsh.env'; print -r -- \$$1" 2>/dev/null
@@ -169,7 +191,7 @@ new_home() {
 test_flow() {
   echo "flow"
 
-  local sandbox stubs nobrew home log out status homes=0
+  local sandbox stubs nobrew bare before home log out status homes=0
   sandbox=$(mktemp -d)
   trap 'rm -rf "$sandbox"' RETURN
   stubs="$sandbox/stubs"
@@ -341,6 +363,70 @@ test_flow() {
   capture env PATH="$nobrew:/usr/bin:/bin" "$(command -v bash)" "$REPO/setup.sh" tools
   check "brew found after install" test "$status" -eq 0
   check "Brewfile installed with brew from BREW_BIN" grep -q "brew bundle install" "$log"
+
+  # doctor passes after a full setup, which also proves setup made every link.
+  new_home
+  check "setup before doctor" in_sandbox bash "$REPO/setup.sh" all
+  before=$(snapshot_home)
+  : > "$log"
+  capture bash -c "cd '$sandbox' && bash '$REPO/setup.sh' doctor"
+  check "healthy doctor passes" test "$status" -eq 0
+  check "doctor runs mise from HOME" grep -q "mise ran in $home\$" "$log"
+  check "doctor says no problems" grep -q "No problems found" "$out"
+  check "doctor checks Brewfile" grep -q "brew bundle check --verbose --no-upgrade --file $REPO/Brewfile" "$log"
+  check "doctor turns off auto-update" grep -q "HOMEBREW_NO_AUTO_UPDATE=1" "$log"
+  check "doctor runs mise doctor" grep -q "mise doctor" "$log"
+  check "healthy doctor changes nothing" test "$before" = "$(snapshot_home)"
+  check_not "healthy doctor installs nothing" grep -qE "bundle install|mise install|sudo|git clone" "$log"
+
+  # doctor reports every kind of drift together, with its fix, and fixes none of it.
+  rm -f "$home/.gitconfig" "$home/.tmux.conf"
+  echo "real file" > "$home/.tmux.conf"
+  ln -sfn /nonexistent "$home/.config/mise/config.toml"
+  : > "$home/elsewhere"
+  ln -sfn "$home/elsewhere" "$home/.config/ghostty/config"
+  echo "# no source line" > "$home/.zshrc"
+  before=$(snapshot_home)
+  : > "$log"
+  capture env FAKE_BREW_STATUS=1 FAKE_MISE_STATUS=1 bash "$REPO/setup.sh" doctor
+  check "drifted doctor fails" test "$status" -eq 1
+  check "doctor counts problems" grep -q "Found 7 problem" "$out"
+  check "doctor lists missing packages" grep -q "Cask ghostty needs to be installed" "$out"
+  check "doctor gives Brewfile fix" grep -q "Fix: make brew-bundle" "$out"
+  check "doctor shows mise problem" grep -q "tool npm:eslint is not installed" "$out"
+  check_not "doctor hides long mise report" grep -q "long report" "$out"
+  check "doctor gives mise fix" grep -q "Fix: make mise" "$out"
+  check "doctor finds missing link" grep -q "$home/.gitconfig is not linked" "$out"
+  check "doctor finds real file" grep -q "$home/.tmux.conf is not linked" "$out"
+  check "doctor finds broken link" grep -q "$home/.config/mise/config.toml is not linked" "$out"
+  check "doctor finds wrong link" grep -q "$home/.config/ghostty/config is not linked" "$out"
+  check "doctor finds zshrc without source" grep -q "$home/.zshrc does not source" "$out"
+  check "doctor gives link fix" grep -q "Fix: make sync" "$out"
+  check "drifted doctor changes nothing" test "$before" = "$(snapshot_home)"
+
+  # make sync repairs what doctor found.
+  check "sync after drift" in_sandbox bash "$REPO/setup.sh" config
+  capture bash "$REPO/setup.sh" doctor
+  check "doctor passes after sync" test "$status" -eq 0
+
+  # doctor notices a link whose file is gone from the repo.
+  new_home
+  cp -R "$REPO" "$sandbox/repo-copy"
+  check "config from repo copy" in_sandbox bash "$sandbox/repo-copy/setup.sh" config
+  rm "$sandbox/repo-copy/tmux/.tmux.conf"
+  capture bash "$sandbox/repo-copy/setup.sh" doctor
+  check "doctor finds file gone from repo" grep -q "$home/.tmux.conf is not linked" "$out"
+
+  # doctor copes with no tools installed at all.
+  new_home
+  bare="$sandbox/bare"
+  mkdir -p "$bare"
+  cp "$stubs/uname" "$bare/uname"
+  capture env PATH="$bare:/usr/bin:/bin" BREW_BIN=/nonexistent "$(command -v bash)" "$REPO/setup.sh" doctor
+  check "doctor fails with no tools" test "$status" -eq 1
+  check "doctor reports no Homebrew" grep -q "Homebrew is not installed" "$out"
+  check "doctor reports no mise" grep -q "mise is not installed" "$out"
+  check "doctor still checks links with no tools" grep -q "$home/.gitconfig is not linked" "$out"
 
   # zsh.env loads cleanly, with the tools set up in the right order.
   if command -v zsh >/dev/null 2>&1; then

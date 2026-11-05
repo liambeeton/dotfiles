@@ -77,6 +77,7 @@ Choose a full setup, tools only, or configuration only from a menu.
 | --- | --- |
 | `make install` | Full setup, pulling the latest changes first |
 | `make sync` | Refresh symlinks and `~/.zshrc` without installing anything |
+| `make doctor` | Report what has drifted from this repo, changing nothing |
 | `make check` | Run the test suite |
 | `make macos-defaults` | Apply macOS defaults and restart Finder and the Dock. Log out and back in for the keyboard settings |
 | `make macos-security` | Enable Touch ID for `sudo` and the firewall, and check FileVault |
@@ -92,6 +93,10 @@ Choose a full setup, tools only, or configuration only from a menu.
 | `make mise` | Install Java, Node.js, Terraform, Terragrunt, and global npm packages |
 
 The full setup does not upgrade packages that are already installed. Run `make brew` for that.
+
+## Checking a Machine
+
+`make doctor` checks that everything in the `Brewfile` is installed, that `mise doctor` reports no problems, and that every config file is still linked to this repo. It only reads, lists each problem with the command that fixes it, and exits with an error if it finds any. Run it from a terminal opened after setup, because `mise doctor` also reports when mise is not activated in the current shell.
 
 ## Terminal Tools
 
