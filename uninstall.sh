@@ -6,7 +6,21 @@
 
 set -euo pipefail
 
+PAM_DIR="${PAM_DIR:-/etc/pam.d}"
+
+# Homebrew provides this module, and sudo may stop working if PAM cannot load it.
+remove_pam_reattach() {
+  local sudo_local="$PAM_DIR/sudo_local" updated
+
+  if grep -qs pam_reattach "$sudo_local"; then
+    updated=$(sed '/pam_reattach/d' "$sudo_local")
+    printf '%s\n' "$updated" | sudo tee "$sudo_local" >/dev/null
+  fi
+}
+
 uninstall_brew() {
+  remove_pam_reattach
+
   if command -v brew >/dev/null 2>&1; then
     brew list --cask | xargs brew uninstall --cask --force
     brew cleanup
