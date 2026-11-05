@@ -15,6 +15,14 @@ Requires macOS on Apple Silicon (Homebrew paths assume `/opt/homebrew`) and admi
 
 ## Install
 
+### One-click
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/liambeeton/dotfiles/main/install.sh | bash
+```
+
+This installs Homebrew if needed, clones the repo to `~/.dotfiles`, and runs the full setup. It only works while the repo is public; otherwise clone it first.
+
 ### From a clone
 
 ```sh
@@ -57,8 +65,7 @@ The full setup does not upgrade packages that are already installed. Run `make b
 ```text
 .
 |-- Brewfile      CLI packages, GUI apps, and fonts
-|-- install.sh    Pulls the latest changes, then runs setup.sh
-|-- remote-install.sh  Bootstrap installer for fresh machines
+|-- install.sh    One-click installer: fetches the repo, then runs setup.sh
 |-- setup.sh      Every setup step, as functions, plus the menu
 |-- uninstall.sh  Every removal step
 |-- code/         VS Code settings and keybindings

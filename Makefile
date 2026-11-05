@@ -7,7 +7,7 @@ BASH := /bin/bash
 SETUP := $(BASH) "$(DOTFILES_DIR)/setup.sh"
 UNINSTALL := $(BASH) "$(DOTFILES_DIR)/uninstall.sh"
 
-.PHONY: help install uninstall remote-install sync check \
+.PHONY: help install uninstall sync check \
 	macos-defaults macos-hostname \
 	brew brew-bundle brew-uninstall \
 	code-install code-extensions code-uninstall \
@@ -19,7 +19,6 @@ help:
 	@printf '%s\n' \
 		'install           Run full dotfiles install' \
 		'uninstall         Run full dotfiles uninstall' \
-		'remote-install    Run remote bootstrap install' \
 		'sync              Refresh symlinks' \
 		'check             Verify shell script headers and syntax' \
 		'macos-defaults    Apply macOS defaults' \
@@ -42,9 +41,6 @@ install:
 
 uninstall:
 	$(UNINSTALL)
-
-remote-install:
-	$(BASH) "$(DOTFILES_DIR)/remote-install.sh"
 
 sync:
 	$(SETUP) config
