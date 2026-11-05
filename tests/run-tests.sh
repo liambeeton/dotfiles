@@ -111,6 +111,11 @@ in_sandbox_order() {
   [[ -n "$first" && -n "$second" && "$first" -lt "$second" ]]
 }
 
+# Prints a variable as zsh.env leaves it.
+zsh_value() {
+  in_sandbox env HOMEBREW_PREFIX=/fake zsh -c "source '$REPO/zsh.env'; print -r -- \$$1" 2>/dev/null
+}
+
 new_home() {
   home="$sandbox/home$((++homes))"
   log="$home.log"
@@ -212,9 +217,20 @@ test_flow() {
     mkdir -p "$home/.oh-my-zsh"
     : > "$home/.oh-my-zsh/oh-my-zsh.sh"
     check "zsh.env loads without errors" test -z "$(in_sandbox zsh -c "source '$REPO/zsh.env'" 2>&1)"
+    check_not "zsh.env does not call brew" grep -q "^brew " "$log"
     check "atuin set up after fzf" in_sandbox_order "fzf --zsh" "atuin init"
     check "starship set up last" test "$(tail -n 1 "$log")" = "starship init zsh"
     check_not "z.sh no longer loaded" grep -q 'z\.sh' "$REPO/zsh.env"
+
+    mkdir -p "$home/.cargo"
+    echo "export CARGO_LOADED=yes" > "$home/.cargo/env"
+    check "ANDROID_HOME expands" test "$(zsh_value ANDROID_HOME)" = "$home/Library/Android/sdk"
+    check "DOTNET_ROOT is Homebrew's" test "$(zsh_value DOTNET_ROOT)" = "/fake/opt/dotnet/libexec"
+    check "GOROOT is Homebrew's" test "$(zsh_value GOROOT)" = "/fake/opt/go/libexec"
+    check "PNPM_HOME follows HOME" test "$(zsh_value PNPM_HOME)" = "$home/Library/pnpm"
+    check "cargo env sourced" test "$(zsh_value CARGO_LOADED)" = "yes"
+    check_not "cargo env file not on PATH" bash -c "test -n \"\$1\" && case \"\$1\" in *.cargo/env*) exit 0 ;; *) exit 1 ;; esac" _ "$(zsh_value PATH)"
+    check "default Homebrew prefix" test "$(in_sandbox env -u HOMEBREW_PREFIX zsh -c "source '$REPO/zsh.env'; print -r -- \$GOROOT" 2>/dev/null)" = "/opt/homebrew/opt/go/libexec"
   fi
 
   # Entry points.
