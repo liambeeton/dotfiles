@@ -35,14 +35,13 @@ The full install runs:
 
 1. `macos/defaults.sh`
 2. `brew/brew.sh`
-3. `brew/brew-package.sh`
+3. `brew bundle` from the `Brewfile`
 4. Git dotfile symlinks
-5. `brew/brew-cask.sh`
-6. `code/extensions.sh`
-7. VS Code settings and keybindings symlinks
-8. `zsh/zsh.sh`
-9. `.zshrc` symlink
-10. `node/npm.sh`
+5. `code/extensions.sh`
+6. VS Code settings and keybindings symlinks
+7. `zsh/zsh.sh`
+8. `.zshrc` symlink
+9. `node/npm.sh`
 
 ## Common Commands
 
@@ -61,8 +60,7 @@ make check
 | `make macos-defaults` | Apply Finder, screenshot, Preview, and Library visibility defaults |
 | `make macos-hostname` | Set macOS computer names from `macos/hostname.sh` |
 | `make brew` | Install and update Homebrew |
-| `make brew-packages` | Install CLI packages from `brew/brew-package.sh` |
-| `make brew-casks` | Install GUI apps and fonts from `brew/brew-cask.sh` |
+| `make brew-bundle` | Install CLI packages, GUI apps, and fonts from the `Brewfile` |
 | `make code-install` | Link VS Code settings and keybindings |
 | `make code-extensions` | Install VS Code extensions |
 | `make node` | Install Volta, Node.js, and global npm packages |
@@ -87,7 +85,8 @@ This links:
 
 ```text
 .
-|-- brew/              Homebrew installer, package list, cask list, uninstall script
+|-- Brewfile           CLI packages, GUI apps, and fonts
+|-- brew/              Homebrew installer and uninstall script
 |-- code/              VS Code settings, keybindings, extensions, install/uninstall scripts
 |-- git/               Git config, ignore rules, attributes, commit template
 |-- macos/             macOS defaults and hostname scripts

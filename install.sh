@@ -11,14 +11,12 @@ echo "Script directory: $DOTFILES_DIR"
 
 . "$DOTFILES_DIR/brew/brew.sh"
 
-. "$DOTFILES_DIR/brew/brew-package.sh"
+brew bundle install --no-upgrade --file "$DOTFILES_DIR/Brewfile"
 
 ln -sfv "$DOTFILES_DIR/git/.gitconfig" ~
 ln -sfv "$DOTFILES_DIR/git/.gitmessage.txt" ~
 ln -sfv "$DOTFILES_DIR/git/.global_gitattributes" ~
 ln -sfv "$DOTFILES_DIR/git/.global_gitignore" ~
-
-. "$DOTFILES_DIR/brew/brew-cask.sh"
 
 . "$DOTFILES_DIR/code/extensions.sh"
 

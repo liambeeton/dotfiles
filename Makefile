@@ -8,7 +8,7 @@ BASH := /bin/bash
 .PHONY: help install uninstall remote-install \
 	check \
 	macos-defaults macos-hostname \
-	brew brew-packages brew-casks brew-uninstall \
+	brew brew-bundle brew-uninstall \
 	code-install code-extensions code-uninstall \
 	node node-uninstall \
 	zsh zsh-uninstall \
@@ -23,8 +23,7 @@ help:
 		'macos-defaults    Apply macOS defaults' \
 		'macos-hostname    Set macOS computer name' \
 		'brew              Install Homebrew and update it' \
-		'brew-packages     Install Homebrew CLI packages' \
-		'brew-casks        Install Homebrew casks' \
+		'brew-bundle       Install packages from the Brewfile' \
 		'brew-uninstall    Remove Homebrew, casks, and /opt/homebrew' \
 		'code-install      Link VS Code settings and keybindings' \
 		'code-extensions   Install VS Code extensions' \
@@ -61,11 +60,8 @@ macos-hostname:
 brew:
 	$(BASH) "$(DOTFILES_DIR)/brew/brew.sh"
 
-brew-packages:
-	$(BASH) "$(DOTFILES_DIR)/brew/brew-package.sh"
-
-brew-casks:
-	$(BASH) "$(DOTFILES_DIR)/brew/brew-cask.sh"
+brew-bundle:
+	brew bundle install --no-upgrade --file "$(DOTFILES_DIR)/Brewfile"
 
 brew-uninstall:
 	$(BASH) "$(DOTFILES_DIR)/brew/uninstall.sh"
