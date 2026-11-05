@@ -227,6 +227,13 @@ install_oh_my_zsh() {
   fi
 }
 
+setup_ghostty() {
+  print_section "Ghostty"
+
+  mkdir -p "$HOME/.config/ghostty"
+  link_file "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
+}
+
 install_node() {
   print_section "Node.js"
 
@@ -266,6 +273,7 @@ setup_configs() {
   setup_git
   setup_vscode
   setup_zsh
+  setup_ghostty
 }
 
 setup_all() {
@@ -313,6 +321,7 @@ Usage: ./setup.sh [step]
   git              Link Git dotfiles
   code             Link VS Code settings and keybindings
   code-extensions  Install VS Code extensions
+  ghostty          Link Ghostty config
   zsh              Install Oh My Zsh and plugins
   node             Install Volta, Node.js, and global packages
 
@@ -341,6 +350,7 @@ main() {
     git) setup_git ;;
     code) setup_vscode ;;
     code-extensions) install_vscode_extensions ;;
+    ghostty) setup_ghostty ;;
     zsh) install_oh_my_zsh ;;
     node) install_node ;;
     help | -h | --help) print_usage ;;

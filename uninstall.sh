@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # Removes what setup.sh installed, including app data and shell history.
-# Usage: ./uninstall.sh                         remove everything
-#        ./uninstall.sh brew|code|git|node|zsh  remove one part
+# Usage: ./uninstall.sh                                  remove everything
+#        ./uninstall.sh brew|code|git|node|terminal|zsh  remove one part
 
 set -euo pipefail
 
@@ -37,6 +37,10 @@ uninstall_node() {
   rm -rf ~/.volta
 }
 
+uninstall_terminal() {
+  rm -rf ~/.config/ghostty
+}
+
 uninstall_zsh() {
   rm -f ~/.zcompdump
   rm -f ~/.zprofile
@@ -56,15 +60,17 @@ case "${1:-all}" in
     uninstall_code
     uninstall_git
     uninstall_node
+    uninstall_terminal
     uninstall_zsh
     ;;
   brew) uninstall_brew ;;
   code) uninstall_code ;;
   git) uninstall_git ;;
   node) uninstall_node ;;
+  terminal) uninstall_terminal ;;
   zsh) uninstall_zsh ;;
   *)
-    echo "Usage: $0 [all|brew|code|git|node|zsh]" >&2
+    echo "Usage: $0 [all|brew|code|git|node|terminal|zsh]" >&2
     exit 1
     ;;
 esac

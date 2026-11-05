@@ -11,6 +11,7 @@ UNINSTALL := $(BASH) "$(DOTFILES_DIR)/uninstall.sh"
 	macos-defaults macos-hostname \
 	brew brew-bundle brew-uninstall \
 	code-install code-extensions code-uninstall \
+	ghostty-install terminal-uninstall \
 	node node-uninstall \
 	zsh zsh-uninstall \
 	git-install git-uninstall
@@ -29,6 +30,8 @@ help:
 		'code-install      Link VS Code settings and keybindings' \
 		'code-extensions   Install VS Code extensions' \
 		'code-uninstall    Remove VS Code files' \
+		'ghostty-install   Link Ghostty config' \
+		'terminal-uninstall  Remove Ghostty config' \
 		'node              Install Volta, Node.js, and global packages' \
 		'node-uninstall    Remove Volta files' \
 		'zsh               Install Oh My Zsh and plugins' \
@@ -71,6 +74,12 @@ code-extensions:
 
 code-uninstall:
 	$(UNINSTALL) code
+
+ghostty-install:
+	$(SETUP) ghostty
+
+terminal-uninstall:
+	$(UNINSTALL) terminal
 
 node:
 	$(SETUP) node
