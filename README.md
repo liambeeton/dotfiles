@@ -14,6 +14,28 @@ These scripts are personal and intentionally opinionated. Review them before run
 
 Requires macOS on Apple Silicon (Homebrew paths assume `/opt/homebrew`) and admin access.
 
+## Prerequisites
+
+**Run these before installing, in this order.** The scripts do not run them for you.
+
+```sh
+softwareupdate --install --all
+xcode-select --install
+```
+
+1. Install all macOS updates. Restart if any of them ask you to.
+2. Install the Xcode Command Line Tools. This opens a dialog, so wait for it to finish before moving on.
+
+### Optional: Rosetta
+
+Nothing in this setup is known to need Rosetta, and you can install it at any time. Install it if you run `linux/amd64` Docker images regularly, or use an Intel-only tool that fails with `Bad CPU type in executable`. macOS normally offers to install it the first time you open an Intel-only app.
+
+```sh
+softwareupdate --install-rosetta --agree-to-license
+```
+
+Using this command accepts Apple's license agreement for Rosetta.
+
 ## Install
 
 ### One-click
