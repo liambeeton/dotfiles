@@ -41,6 +41,10 @@ Using this command accepts Apple's license agreement for Rosetta.
 
 The setup only checks FileVault and warns if it is off, because enabling it prints a recovery key you must save. To enable it, run `sudo fdesetup enable`.
 
+If a step fails, the others still run. A summary at the end lists what failed and anything left for you to do, such as logging out, and the run exits with an error. Fix the cause and run it again.
+
+If a cask fails because you already installed that app by hand, either delete the app or run `brew install --cask --adopt <cask>` if it is the same version, and then run the setup again.
+
 ### One-click
 
 ```sh

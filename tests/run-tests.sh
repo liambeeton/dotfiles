@@ -51,7 +51,7 @@ test_static() {
 # Stubs log their arguments to $STUB_LOG and do nothing else.
 make_stubs() {
   local dir="$1" name
-  for name in brew code mise tldr fzf atuin zoxide direnv defaults chflags scutil chsh; do
+  for name in code mise tldr fzf atuin zoxide direnv defaults chflags scutil chsh; do
     # shellcheck disable=SC2016 # expands when the stub runs
     printf '#!/bin/sh\necho "%s $*" >> "$STUB_LOG"\n' "$name" > "$dir/$name"
   done
@@ -59,6 +59,16 @@ make_stubs() {
   cat > "$dir/uname" <<'STUB'
 #!/bin/sh
 echo "${FAKE_UNAME:-Darwin}"
+STUB
+
+  # Like the real one, shellenv puts brew on PATH. FAKE_BREW_STATUS fails brew bundle.
+  cat > "$dir/brew" <<'STUB'
+#!/bin/sh
+echo "brew $*" >> "$STUB_LOG"
+case "$1" in
+  shellenv) echo "export PATH=\"$(dirname "$0"):\$PATH\"" ;;
+  bundle) exit "${FAKE_BREW_STATUS:-0}" ;;
+esac
 STUB
 
   # Runs tee for real, so tests can check what would be written.
@@ -131,6 +141,18 @@ in_sandbox_order() {
   [[ -n "$first" && -n "$second" && "$first" -lt "$second" ]]
 }
 
+# Runs a command in the sandbox, keeping its status in $status and output in $out.
+capture() {
+  out="$home.out"
+  status=0
+  in_sandbox "$@" > "$out" 2>&1 || status=$?
+}
+
+# True if the text appears in the summary of the last captured run.
+summary_has() {
+  sed -n '/=== Summary/,$p' "$out" | grep -qF -- "$1"
+}
+
 # Prints a variable as zsh.env leaves it.
 zsh_value() {
   in_sandbox env HOMEBREW_PREFIX=/fake zsh -c "source '$REPO/zsh.env'; print -r -- \$$1" 2>/dev/null
@@ -147,7 +169,7 @@ new_home() {
 test_flow() {
   echo "flow"
 
-  local sandbox stubs home log homes=0
+  local sandbox stubs nobrew home log out status homes=0
   sandbox=$(mktemp -d)
   trap 'rm -rf "$sandbox"' RETURN
   stubs="$sandbox/stubs"
@@ -258,6 +280,67 @@ test_flow() {
   check "local install succeeds" in_sandbox bash "$REPO/install.sh"
   check_not "local install does not clone the repo" grep -q "git clone .*liambeeton" "$log"
   check "local install links from checkout" links_to "$home/.gitconfig" "$REPO/git/.gitconfig"
+
+  # A successful run ends with a summary of what is left to do.
+  new_home
+  capture env FAKE_FILEVAULT="FileVault is Off." bash "$REPO/setup.sh" all
+  check "notes do not fail the run" test "$status" -eq 0
+  check "summary says all finished" summary_has "All steps finished"
+  check "summary has FileVault warning" summary_has "sudo fdesetup enable"
+  check "summary has logout note" summary_has "Log out and back in"
+  check "summary has tmux note" summary_has "prefix + I"
+  check "summary has restart note" summary_has "exec zsh"
+  mkdir -p "$home/tmp" "$home/.tmux/plugins/tmux-resurrect"
+  capture env TMPDIR="$home/tmp" bash "$REPO/setup.sh" all
+  check "notes file cleaned up" test -z "$(ls -A "$home/tmp")"
+  check_not "tmux note gone once plugins are installed" summary_has "prefix + I"
+  check_not "FileVault note gone when on" summary_has "sudo fdesetup enable"
+
+  # A failed step stops at the failed command, and the other steps still run.
+  new_home
+  capture env FAKE_BREW_STATUS=1 bash "$REPO/setup.sh" all
+  check "failed step fails the run" test "$status" -eq 1
+  check "summary names failed step" summary_has "Brewfile packages"
+  check_not "summary does not claim success" summary_has "All steps finished"
+  check_not "failed step stops at failed command" grep -q "tldr --update" "$log"
+  check "steps after failure still run" grep -q "mise install" "$log"
+  check "git config linked after failure" links_to "$home/.gitconfig" "$REPO/git/.gitconfig"
+  check "zshrc set up after failure" has_count "$home/.zshrc" "$REPO/zsh.env" 1
+  check "summary still has notes after failure" summary_has "Log out and back in"
+
+  # Ctrl-C stops the run instead of moving on to the next step.
+  new_home
+  capture env FAKE_BREW_STATUS=130 bash "$REPO/setup.sh" all
+  check "ctrl-c exits 130" test "$status" -eq 130
+  check_not "ctrl-c runs no later steps" grep -q "mise install" "$log"
+
+  # A piped install reports a failed step the same way.
+  new_home
+  capture env FAKE_BREW_STATUS=1 bash -c "cd '$sandbox' && cat '$REPO/install.sh' | bash"
+  check "piped install fails the run" test "$status" -eq 1
+  check "piped install links after failure" links_to "$home/.gitconfig" "$home/.dotfiles/git/.gitconfig"
+
+  # A single step has no summary and stops on failure.
+  new_home
+  capture env FAKE_BREW_STATUS=1 bash "$REPO/setup.sh" brew-bundle
+  check_not "single step fails without summary" test "$status" -eq 0
+  check_not "single step prints no summary" summary_has "exec zsh"
+
+  # tools and config report too.
+  new_home
+  capture bash "$REPO/setup.sh" config
+  check "config prints summary" summary_has "All steps finished"
+  capture env FAKE_BREW_STATUS=1 bash "$REPO/setup.sh" tools
+  check "tools reports failure" summary_has "Brewfile packages"
+
+  # A new install only finds brew through BREW_BIN, and later steps still need it.
+  new_home
+  nobrew="$sandbox/nobrew"
+  cp -R "$stubs" "$nobrew"
+  rm "$nobrew/brew"
+  capture env PATH="$nobrew:/usr/bin:/bin" "$(command -v bash)" "$REPO/setup.sh" tools
+  check "brew found after install" test "$status" -eq 0
+  check "Brewfile installed with brew from BREW_BIN" grep -q "brew bundle install" "$log"
 
   # zsh.env loads cleanly, with the tools set up in the right order.
   if command -v zsh >/dev/null 2>&1; then

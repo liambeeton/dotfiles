@@ -28,6 +28,65 @@ print_success() { echo -e "${GREEN}✓${NC} $1"; }
 print_info() { echo -e "${YELLOW}→${NC} $1"; }
 print_error() { echo -e "${RED}✗ $1${NC}" >&2; }
 
+# Prints a follow-up for the user, and repeats it in the summary at the end.
+add_note() {
+  print_info "$1"
+  if [[ -n "${SETUP_NOTES_FILE:-}" ]]; then
+    echo "$1" >> "$SETUP_NOTES_FILE"
+  fi
+}
+
+# Runs one step, and on failure records it and moves on. The subshell is what lets
+# set -e stop the step at its first failed command; inside an if or a || it would
+# be ignored. It also means a step cannot change this shell's variables, which is
+# why notes go through a file and load_homebrew_env runs separately.
+run_step() {
+  local name="$1" status=0
+  shift
+
+  set +e
+  (
+    set -e
+    "$@"
+  )
+  status=$?
+  set -e
+
+  # Ctrl-C stops the whole run, not just this step.
+  if [[ "$status" -eq 130 ]]; then
+    exit 130
+  fi
+  if [[ "$status" -ne 0 ]]; then
+    print_error "$name failed, continuing with the next step"
+    FAILED_STEPS="$FAILED_STEPS$name"$'\n'
+  fi
+}
+
+# Runs the given steps, then prints the summary. Fails if any step failed.
+run_with_summary() {
+  FAILED_STEPS=""
+  SETUP_NOTES_FILE=$(mktemp)
+  trap 'rm -f "$SETUP_NOTES_FILE"' EXIT
+
+  "$@"
+
+  print_section "Summary"
+  if [[ -s "$SETUP_NOTES_FILE" ]]; then
+    echo "Next steps:"
+    sed 's/^/  - /' "$SETUP_NOTES_FILE"
+  fi
+  echo "Restart your terminal or run: exec zsh"
+
+  if [[ -n "$FAILED_STEPS" ]]; then
+    echo ""
+    print_error "These steps failed. Their errors are in the output above:"
+    printf '%s' "$FAILED_STEPS" | sed 's/^/  - /' >&2
+    echo "Fix the cause and run this again. It is safe to re-run." >&2
+    exit 1
+  fi
+  print_success "All steps finished"
+}
+
 check_macos() {
   if [[ "$(uname -s)" != "Darwin" ]]; then
     print_error "This script is designed for macOS only."
@@ -106,7 +165,7 @@ setup_macos_defaults() {
   killall Finder Dock SystemUIServer || true
 
   print_success "macOS defaults applied"
-  print_info "Log out and back in for the keyboard settings to take effect"
+  add_note "Log out and back in if the keyboard settings changed"
 }
 
 # sudo_local survives macOS updates, unlike edits to /etc/pam.d/sudo. An existing
@@ -128,7 +187,7 @@ check_filevault() {
   if fdesetup status | grep -q "FileVault is On"; then
     print_success "FileVault is on"
   else
-    print_error "FileVault does not appear to be on. To enable it, run this and save the recovery key it prints: sudo fdesetup enable"
+    add_note "FileVault does not appear to be on. To enable it, run this and save the recovery key it prints: sudo fdesetup enable"
   fi
 }
 
@@ -155,6 +214,12 @@ set_hostname() {
   print_success "Computer name set to $COMPUTER_NAME"
 }
 
+load_homebrew_env() {
+  if [[ -x "$BREW_BIN" ]]; then
+    eval "$("$BREW_BIN" shellenv)"
+  fi
+}
+
 install_homebrew() {
   print_section "Homebrew"
 
@@ -165,9 +230,7 @@ install_homebrew() {
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
 
-  if [[ -x "$BREW_BIN" ]]; then
-    eval "$("$BREW_BIN" shellenv)"
-  fi
+  load_homebrew_env
   if ! command -v brew >/dev/null 2>&1; then
     print_error "Homebrew not found at $BREW_BIN after installing."
     exit 1
@@ -290,7 +353,10 @@ install_tmux_plugin_manager() {
     print_success "TPM already installed"
   else
     git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
-    print_info "Press prefix + I inside tmux to install its plugins"
+  fi
+
+  if [[ ! -d "$HOME/.tmux/plugins/tmux-resurrect" ]]; then
+    add_note "Press prefix + I inside tmux to install its plugins"
   fi
 }
 
@@ -335,32 +401,35 @@ set_zsh_default() {
 }
 
 setup_tools() {
-  install_homebrew
-  install_tools
-  install_vscode_extensions
-  install_oh_my_zsh
-  install_tmux_plugin_manager
-  install_mise_tools
+  run_step "Homebrew" install_homebrew
+  load_homebrew_env
+  run_step "Brewfile packages" install_tools
+  run_step "VS Code extensions" install_vscode_extensions
+  run_step "Oh My Zsh" install_oh_my_zsh
+  run_step "tmux plugin manager" install_tmux_plugin_manager
+  run_step "mise tools" install_mise_tools
 }
 
 setup_configs() {
-  setup_git
-  setup_vscode
-  setup_zsh
-  setup_ghostty
-  setup_tmux
-  setup_starship
-  setup_mise
+  run_step "Git config" setup_git
+  run_step "VS Code config" setup_vscode
+  run_step "Zsh config" setup_zsh
+  run_step "Ghostty config" setup_ghostty
+  run_step "tmux config" setup_tmux
+  run_step "Starship config" setup_starship
+  run_step "mise config" setup_mise
+}
+
+setup_everything() {
+  run_step "macOS defaults" setup_macos_defaults
+  run_step "macOS security" setup_macos_security
+  setup_tools
+  setup_configs
+  run_step "Default shell" set_zsh_default
 }
 
 setup_all() {
-  setup_macos_defaults
-  setup_macos_security
-  setup_tools
-  setup_configs
-  set_zsh_default
-  print_section "Setup complete"
-  echo "Restart your terminal or run: exec zsh"
+  run_with_summary setup_everything
 }
 
 prompt_menu() {
@@ -375,8 +444,8 @@ prompt_menu() {
   read -r -p "Enter choice [1-4]: " choice
   case "$choice" in
     1) setup_all ;;
-    2) setup_tools ;;
-    3) setup_configs ;;
+    2) run_with_summary setup_tools ;;
+    3) run_with_summary setup_configs ;;
     4) exit 0 ;;
     *)
       print_error "Invalid choice."
@@ -415,8 +484,8 @@ main() {
   case "${1:-}" in
     "") prompt_menu ;;
     all) setup_all ;;
-    tools) setup_tools ;;
-    config) setup_configs ;;
+    tools) run_with_summary setup_tools ;;
+    config) run_with_summary setup_configs ;;
     macos-defaults) setup_macos_defaults ;;
     macos-security) setup_macos_security ;;
     macos-hostname) set_hostname ;;
