@@ -128,6 +128,9 @@ install_tools() {
   print_section "Brewfile"
   brew bundle install --no-upgrade --file "$DOTFILES_DIR/Brewfile"
   print_success "Brewfile packages installed"
+
+  # tealdeer has no pages until its cache is downloaded once.
+  tldr --update || print_info "Could not update tldr pages. Run: tldr --update"
 }
 
 setup_git() {

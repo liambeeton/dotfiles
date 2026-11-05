@@ -70,11 +70,16 @@ The full setup does not upgrade packages that are already installed. Run `make b
 | `ghostty` | Terminal, configured in `ghostty/config` |
 | `tmux` | Multiplexer. Press `prefix + I` once to install its plugins |
 | `starship` | Prompt. Setup creates the gruvbox-rainbow preset if you have no config |
+| `eza`, `bat` | `ls` and `cat`, through aliases |
 | `ripgrep`, `fd` | Search. `grep` and `find` are not aliased because their flags differ |
 | `fzf` | Fuzzy finder: `ctrl-t` for files, `alt-c` for directories |
 | `atuin` | Searchable history on `ctrl-r`. The up arrow is unchanged |
 | `zoxide` | Directory jumping with `z` and `zi` |
+| `yazi` | File manager |
+| `lazygit` | Git TUI |
 | `git-delta`, `difftastic` | Diffs |
+| `bottom` (`btm`), `procs` | System monitor and `ps` replacement |
+| `tealdeer` (`tldr`), `tokei` (`loc`), `ouch` | Command examples, code statistics, compression |
 | `mise` | Node.js and global npm packages, from `mise/config.toml`. Also reads `.nvmrc` and `.node-version` |
 | `uv` | Python |
 | `jenv`, `tfenv`, `tgenv` | Java, Terraform, and Terragrunt versions |

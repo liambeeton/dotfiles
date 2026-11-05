@@ -51,7 +51,7 @@ test_static() {
 # Stubs log their arguments to $STUB_LOG and do nothing else.
 make_stubs() {
   local dir="$1" name
-  for name in brew code mise fzf atuin zoxide jenv direnv defaults chflags scutil sudo chsh; do
+  for name in brew code mise tldr fzf atuin zoxide jenv direnv defaults chflags scutil sudo chsh; do
     # shellcheck disable=SC2016 # expands when the stub runs
     printf '#!/bin/sh\necho "%s $*" >> "$STUB_LOG"\n' "$name" > "$dir/$name"
   done
@@ -146,6 +146,7 @@ test_flow() {
   check "tmux config linked" links_to "$home/.tmux.conf" "$REPO/tmux/.tmux.conf"
   check "tmux plugin manager cloned" test -d "$home/.tmux/plugins/tpm"
   check "starship config created" grep -q gruvbox-rainbow "$home/.config/starship.toml"
+  check "tldr pages downloaded" grep -q "tldr --update" "$log"
   check_not "hostname untouched by full setup" grep -q scutil "$log"
   check_not "packages not upgraded by full setup" grep -q "brew upgrade" "$log"
 
