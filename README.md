@@ -46,7 +46,7 @@ Choose a full setup, tools only, or configuration only from a menu.
 | Target | Purpose |
 | --- | --- |
 | `make install` | Full setup, pulling the latest changes first |
-| `make sync` | Refresh symlinks without installing anything |
+| `make sync` | Refresh symlinks and `~/.zshrc` without installing anything |
 | `make check` | Verify shell script headers and syntax |
 | `make macos-defaults` | Apply Finder, screenshot, Preview, and Library visibility defaults |
 | `make macos-hostname` | Set the computer name (not part of the full setup) |
@@ -68,18 +68,19 @@ The full setup does not upgrade packages that are already installed. Run `make b
 |-- install.sh    One-click installer: fetches the repo, then runs setup.sh
 |-- setup.sh      Every setup step, as functions, plus the menu
 |-- uninstall.sh  Every removal step
+|-- zsh.env       Shared Zsh configuration, sourced by ~/.zshrc
 |-- code/         VS Code settings and keybindings
-|-- git/          Git config, ignore rules, attributes, commit template
-`-- zsh/          Zsh configuration
+`-- git/          Git config, ignore rules, attributes, commit template
 ```
 
 ## Customizing
 
 - **Packages:** edit `Brewfile`.
 - **VS Code extensions, npm packages, computer name:** edit the values at the top of `setup.sh`.
-- **Shell config:** edit `zsh/.zshrc`.
+- **Shell config for every machine:** edit `zsh.env`.
+- **Shell config for one machine:** edit `~/.zshrc`. It is not tracked, and it only needs to keep the line that sources `zsh.env`. Installers that append to it no longer dirty the repo.
 
-Git, VS Code, and Zsh files are symlinked, so edits take effect immediately. An existing file is copied to `<file>.backup.<timestamp>` before it is replaced or edited.
+Git and VS Code files are symlinked, so edits take effect immediately. An existing file is copied to `<file>.backup.<timestamp>` before it is replaced or edited.
 
 ## Uninstall
 

@@ -19,7 +19,7 @@ help:
 	@printf '%s\n' \
 		'install           Run full dotfiles install' \
 		'uninstall         Run full dotfiles uninstall' \
-		'sync              Refresh symlinks' \
+		'sync              Refresh symlinks and ~/.zshrc' \
 		'check             Verify shell script headers and syntax' \
 		'macos-defaults    Apply macOS defaults' \
 		'macos-hostname    Set macOS computer name' \

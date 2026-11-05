@@ -170,14 +170,35 @@ install_vscode_extensions() {
   done
 }
 
+# ~/.zshrc is a local file that sources the tracked zsh.env, so anything an
+# installer appends to it stays out of the repo.
 setup_zsh() {
   print_section "Zsh"
-  link_file "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc"
+
+  local zshrc="$HOME/.zshrc"
+
+  # Earlier versions of this repo symlinked ~/.zshrc into it. Drop the link so
+  # that the source line below is not written into a tracked file.
+  if [[ -L "$zshrc" && "$(readlink "$zshrc")" == "$DOTFILES_DIR"/* ]]; then
+    rm "$zshrc"
+    print_info "Removed old ~/.zshrc symlink"
+  fi
+
+  if grep -qsF "$DOTFILES_DIR/zsh.env" "$zshrc"; then
+    print_success "$zshrc already sources zsh.env"
+    return
+  fi
+
+  if [[ -f "$zshrc" ]]; then
+    backup_file "$zshrc"
+  fi
+  printf 'source "%s/zsh.env"\n' "$DOTFILES_DIR" >> "$zshrc"
+  print_success "Added source line to ~/.zshrc"
 }
 
 install_oh_my_zsh() {
   # The Oh My Zsh installer writes its own ~/.zshrc unless one already exists
-  # and --keep-zshrc is set, so link ours first.
+  # and --keep-zshrc is set. Its template would load Oh My Zsh a second time.
   setup_zsh
 
   print_section "Oh My Zsh"
@@ -260,7 +281,7 @@ prompt_menu() {
   echo "Select what to run:"
   echo "1) Full setup (install all tools + configure)"
   echo "2) Install tools only"
-  echo "3) Configure only (refresh symlinks)"
+  echo "3) Configure only (refresh symlinks and ~/.zshrc)"
   echo "4) Quit"
   echo ""
 
@@ -284,7 +305,7 @@ Usage: ./setup.sh [step]
 
   all              Full setup
   tools            Install tools only
-  config           Refresh symlinks
+  config           Refresh symlinks and ~/.zshrc
   macos-defaults   Apply macOS defaults
   macos-hostname   Set macOS computer name
   brew             Install Homebrew, update it, and upgrade packages
