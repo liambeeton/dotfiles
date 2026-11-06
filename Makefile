@@ -8,7 +8,7 @@ SETUP := $(BASH) "$(DOTFILES_DIR)/setup.sh"
 UNINSTALL := $(BASH) "$(DOTFILES_DIR)/uninstall.sh"
 
 .PHONY: help install uninstall sync doctor check \
-	macos-defaults macos-security macos-hostname \
+	macos-defaults macos-security macos-hostname macos-remove-apps \
 	brew brew-bundle brew-uninstall \
 	code-install code-extensions code-uninstall \
 	ghostty-install tmux-install terminal-uninstall \
@@ -26,6 +26,7 @@ help:
 		'macos-defaults    Apply macOS defaults' \
 		'macos-security    Enable Touch ID for sudo and the firewall, check FileVault' \
 		'macos-hostname    Set macOS computer name' \
+		'macos-remove-apps  Delete GarageBand, its sound library, and iMovie' \
 		'brew              Install Homebrew, update it, and upgrade packages' \
 		'brew-bundle       Install what is missing from the Brewfile' \
 		'brew-uninstall    Remove Homebrew, casks, and /opt/homebrew' \
@@ -65,6 +66,9 @@ macos-security:
 
 macos-hostname:
 	$(SETUP) macos-hostname
+
+macos-remove-apps:
+	$(SETUP) macos-remove-apps
 
 brew:
 	$(SETUP) brew

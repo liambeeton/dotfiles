@@ -11,6 +11,7 @@ COMPUTER_NAME="Aesoteric"
 BREW_BIN="${BREW_BIN:-/opt/homebrew/bin/brew}"
 PAM_DIR="${PAM_DIR:-/etc/pam.d}"
 PAM_REATTACH="${PAM_REATTACH:-/opt/homebrew/lib/pam/pam_reattach.so}"
+APPLICATIONS_DIR="${APPLICATIONS_DIR:-/Applications}"
 VSCODE_USER_DIR="$HOME/Library/Application Support/Code/User"
 
 vscode_extensions=(
@@ -152,8 +153,33 @@ link_folder() {
   done < <(print_links | grep "^$1/")
 }
 
+# Sets a trackpad preference for both the built-in and the Bluetooth trackpad.
+set_trackpad() {
+  defaults write com.apple.AppleMultitouchTrackpad "$@"
+  defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad "$@"
+}
+
+# Turns a system keyboard shortcut off, and keeps its usual keys so that it works
+# if turned back on. Takes the shortcut's ID, key code, and modifier flags.
+disable_hotkey() {
+  defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add "$1" \
+    "<dict><key>enabled</key><false/><key>value</key><dict><key>parameters</key><array><integer>65535</integer><integer>$2</integer><integer>$3</integer></array><key>type</key><string>standard</string></dict></dict>"
+}
+
 setup_macos_defaults() {
   print_section "macOS defaults"
+
+  # Dark Mode
+  defaults write NSGlobalDomain AppleInterfaceStyle -string Dark
+
+  # Always show scroll bars, to see what a web page looks like with them
+  defaults write NSGlobalDomain AppleShowScrollBars -string Always
+
+  # Show the battery percentage in the menu bar
+  defaults -currentHost write com.apple.controlcenter BatteryShowPercentage -bool true
+
+  # Turn off Siri
+  defaults write com.apple.assistant.support "Assistant Enabled" -bool false
 
   # Take screenshots as jpg (usually smaller size) and not png
   defaults write com.apple.screencapture type jpg
@@ -180,6 +206,25 @@ setup_macos_defaults() {
   # Show status bar
   defaults write com.apple.finder ShowStatusBar -bool true
 
+  # Show the preview pane
+  defaults write com.apple.finder ShowPreviewPane -bool true
+
+  # Open new Finder windows in Downloads
+  defaults write com.apple.finder NewWindowTarget -string PfLo
+  defaults write com.apple.finder NewWindowTargetPath -string "file://$HOME/Downloads/"
+
+  # Keep the desktop empty
+  defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool false
+  defaults write com.apple.finder ShowHardDrivesOnDesktop -bool false
+  defaults write com.apple.finder ShowMountedServersOnDesktop -bool false
+  defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool false
+
+  # Hide tags in the sidebar
+  defaults write com.apple.finder ShowRecentTags -bool false
+
+  # Remove items from the Bin after 30 days
+  defaults write com.apple.finder FXRemoveOldTrashItems -bool true
+
   # Fast key repeat, and no accent popup when holding a key (helps in Vim)
   defaults write NSGlobalDomain KeyRepeat -int 2
   defaults write NSGlobalDomain InitialKeyRepeat -int 15
@@ -189,6 +234,45 @@ setup_macos_defaults() {
   defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
   defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
 
+  # Straight quotes, should smart quotes ever be turned back on
+  defaults write NSGlobalDomain NSUserQuotesArray \
+    '<array><string>&quot;</string><string>&quot;</string><string>&apos;</string><string>&apos;</string></array>'
+
+  # No automatic capitals, or full stop from a double space
+  defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
+  defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
+
+  # The Fn key does nothing
+  defaults write com.apple.HIToolbox AppleFnUsageType -int 0
+
+  # Free up Cmd+Space for Raycast
+  disable_hotkey 64 49 1048576
+
+  # No Mission Control, Application Windows, Show Desktop, or Move Space shortcuts.
+  # Each second shortcut is the same one with Shift.
+  disable_hotkey 32 126 8650752
+  disable_hotkey 34 126 8781824
+  disable_hotkey 33 125 8650752
+  disable_hotkey 35 125 8781824
+  disable_hotkey 36 103 8388608
+  disable_hotkey 37 103 8519680
+  disable_hotkey 79 123 8650752
+  disable_hotkey 80 123 8781824
+  disable_hotkey 81 124 8650752
+  disable_hotkey 82 124 8781824
+
+  # Tap to click
+  set_trackpad Clicking -bool true
+  defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+  defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+
+  # No three-finger Look Up, or swipe from the right edge for Notification Centre
+  set_trackpad TrackpadThreeFingerTapGesture -int 0
+  set_trackpad TrackpadTwoFingerFromRightEdgeSwipeGesture -int 0
+
+  # Fastest trackpad tracking speed
+  defaults write NSGlobalDomain com.apple.trackpad.scaling -float 3
+
   # No .DS_Store files on network shares or USB drives
   defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
   defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
@@ -196,11 +280,48 @@ setup_macos_defaults() {
   # Auto-hide the Dock
   defaults write com.apple.dock autohide -bool true
 
+  # Smaller Dock, with dots under open apps and no recent apps
+  defaults write com.apple.dock tilesize -int 36
+  defaults write com.apple.dock show-process-indicators -bool true
+  defaults write com.apple.dock show-recents -bool false
+
+  # No hot corners
+  defaults write com.apple.dock wvous-tl-corner -int 1
+  defaults write com.apple.dock wvous-tr-corner -int 1
+  defaults write com.apple.dock wvous-bl-corner -int 1
+  defaults write com.apple.dock wvous-br-corner -int 1
+
   # killall returns an error if any of these is not running, such as over SSH.
   killall Finder Dock SystemUIServer || true
 
   print_success "macOS defaults applied"
-  add_note "Log out and back in if the keyboard settings changed"
+  add_note "Log out and back in if the appearance, keyboard, or trackpad settings changed"
+}
+
+# Not part of the full setup, because it deletes files. Logic Pro shares the sound
+# library with GarageBand, so the library stays if Logic Pro is installed.
+remove_apple_apps() {
+  print_section "Remove GarageBand and iMovie"
+
+  local paths=(
+    "$APPLICATIONS_DIR/GarageBand.app"
+    "$APPLICATIONS_DIR/iMovie.app"
+    "/Library/Application Support/GarageBand"
+  )
+
+  if compgen -G "$APPLICATIONS_DIR/Logic Pro*.app" >/dev/null; then
+    print_info "Logic Pro is installed, keeping the shared sound library"
+  else
+    paths+=(
+      "/Library/Application Support/Logic"
+      "/Library/Audio/Apple Loops"
+      "/Library/Audio/Apple Loops Index"
+    )
+  fi
+
+  sudo rm -rf "${paths[@]}"
+
+  print_success "GarageBand and iMovie removed"
 }
 
 # pam_tid cannot reach Touch ID from a process outside the login session, as under
@@ -596,6 +717,7 @@ Usage: ./setup.sh [step]
   macos-defaults   Apply macOS defaults
   macos-security   Enable Touch ID for sudo and the firewall, check FileVault
   macos-hostname   Set macOS computer name
+  macos-remove-apps  Delete GarageBand, its sound library, and iMovie
   brew             Install Homebrew, update it, and upgrade packages
   brew-bundle      Install what is missing from the Brewfile
   git              Link Git dotfiles
@@ -622,6 +744,7 @@ main() {
     macos-defaults) setup_macos_defaults ;;
     macos-security) setup_macos_security ;;
     macos-hostname) set_hostname ;;
+    macos-remove-apps) remove_apple_apps ;;
     brew)
       install_homebrew
       update_homebrew

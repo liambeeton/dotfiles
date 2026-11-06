@@ -214,6 +214,13 @@ test_flow() {
   check "screenshot folder created" test -d "$home/Screenshots"
   check "screenshot location set" grep -q "com.apple.screencapture location $home/Screenshots" "$log"
   check "Finder and Dock restarted" grep -q "killall Finder Dock SystemUIServer" "$log"
+  check "new Finder windows open Downloads" grep -q "NewWindowTargetPath -string file://$home/Downloads/" "$log"
+  check "every hot corner off" test "$(grep -cE 'com.apple.dock wvous-(tl|tr|bl|br)-corner -int 1$' "$log")" -eq 4
+  check "built-in trackpad set" grep -q "com.apple.AppleMultitouchTrackpad Clicking -bool true" "$log"
+  check "Bluetooth trackpad set" grep -q "com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true" "$log"
+  check "Spotlight shortcut off, keeping its keys" grep -qE "AppleSymbolicHotKeys -dict-add 64 <dict><key>enabled</key><false/>.*<integer>49</integer><integer>1048576</integer>" "$log"
+  check "Mission Control shortcuts off" test "$(grep -cE 'AppleSymbolicHotKeys -dict-add (3[2-7]|79|8[0-2]) <dict><key>enabled</key><false/>' "$log")" -eq 10
+  check_not "apps not removed by full setup" grep -qE "GarageBand|iMovie" "$log"
   check "Touch ID enabled for sudo" grep -qE '^auth +sufficient +pam_tid.so' "$home/pam.d/sudo_local"
   check "pam_reattach comes right before pam_tid" pam_line_before "$home/pam.d/sudo_local" pam_reattach pam_tid
   check "pam_reattach is optional and skips SSH" grep -qE "^auth +optional +$home/pam_reattach.so ignore_ssh$" "$home/pam.d/sudo_local"
@@ -499,6 +506,16 @@ test_flow() {
   check_not "non-macOS refused by install" in_sandbox env FAKE_UNAME=Linux bash "$REPO/install.sh"
   check "hostname step" in_sandbox bash "$REPO/setup.sh" macos-hostname
   check "hostname applied" grep -q "sudo scutil --set ComputerName Aesoteric" "$log"
+  : > "$log"
+  check "remove apps step" in_sandbox env APPLICATIONS_DIR="$home/Applications" bash "$REPO/setup.sh" macos-remove-apps
+  check "GarageBand removed" grep -qF "sudo rm -rf $home/Applications/GarageBand.app" "$log"
+  check "iMovie removed" grep -qF "$home/Applications/iMovie.app" "$log"
+  check "sound library removed" grep -qF "/Library/Audio/Apple Loops" "$log"
+  : > "$log"
+  mkdir -p "$home/Applications/Logic Pro.app"
+  check "remove apps step with Logic Pro" in_sandbox env APPLICATIONS_DIR="$home/Applications" bash "$REPO/setup.sh" macos-remove-apps
+  check "GarageBand removed with Logic Pro" grep -qF "$home/Applications/GarageBand.app" "$log"
+  check_not "sound library kept for Logic Pro" grep -qE "Apple Loops|Application Support/Logic" "$log"
   check "brew step upgrades" in_sandbox bash "$REPO/setup.sh" brew
   check "brew upgrade ran" grep -q "brew upgrade" "$log"
   : > "$log"
