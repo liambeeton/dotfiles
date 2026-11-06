@@ -117,6 +117,57 @@ echo "starship $*" >> "$STUB_LOG"
 if [ "$1" = preset ]; then echo "$2" > "$4"; fi
 STUB
 
+  # FAKE_TTY_STATUS is the same as running without a terminal.
+  cat > "$dir/tty" <<'STUB'
+#!/bin/sh
+exit "${FAKE_TTY_STATUS:-0}"
+STUB
+
+  # Creates the key it is asked for. FAKE_SSH_NO_PASSPHRASE opens it with no passphrase.
+  cat > "$dir/ssh-keygen" <<'STUB'
+#!/bin/sh
+echo "ssh-keygen $*" >> "$STUB_LOG"
+case "$1" in
+  -t)
+    echo "new key" > "$6"
+    echo "new public key" > "$6.pub"
+    ;;
+  -y) [ -n "${FAKE_SSH_NO_PASSPHRASE:-}" ] ;;
+esac
+STUB
+
+  # -T only finds a key once it has been added.
+  cat > "$dir/ssh-add" <<'STUB'
+#!/bin/sh
+echo "ssh-add $*" >> "$STUB_LOG"
+case "$1" in
+  -T) [ -f "$HOME/.ssh/stub-agent" ] ;;
+  *) : > "$HOME/.ssh/stub-agent" ;;
+esac
+STUB
+
+  # Like the real one, exits with an error even when GitHub accepts the key.
+  cat > "$dir/ssh" <<'STUB'
+#!/bin/sh
+echo "ssh $*" >> "$STUB_LOG"
+if [ -f "$HOME/.ssh/stub-on-github" ]; then
+  echo "Hi! You've successfully authenticated, but GitHub does not provide shell access."
+  exit 1
+fi
+echo "git@github.com: Permission denied (publickey)."
+exit 255
+STUB
+
+  # FAKE_GH_LOGGED_IN skips the login. Adding a key makes the ssh stub accept it.
+  cat > "$dir/gh" <<'STUB'
+#!/bin/sh
+echo "gh $*" >> "$STUB_LOG"
+case "$1 $2" in
+  "auth status") [ -n "${FAKE_GH_LOGGED_IN:-}" ] ;;
+  "ssh-key add") : > "$HOME/.ssh/stub-on-github" ;;
+esac
+STUB
+
   # Serves the installers that scripts pipe into a shell.
   cat > "$dir/curl" <<'STUB'
 #!/bin/sh
@@ -245,6 +296,14 @@ test_flow() {
   check "tmux plugin manager cloned" test -d "$home/.tmux/plugins/tpm"
   check "starship config created" grep -q gruvbox-rainbow "$home/.config/starship.toml"
   check "tldr pages downloaded" grep -q "tldr --update" "$log"
+  check "SSH key created" grep -q "ssh-keygen -t ed25519 -C github -f $home/.ssh/github" "$log"
+  check "SSH folder is private" test -n "$(find "$home/.ssh" -maxdepth 0 -perm 700)"
+  check "SSH config scoped to GitHub" grep -qx "Host github.com" "$home/.ssh/config"
+  check "SSH config uses the key" has_count "$home/.ssh/config" "IdentityFile ~/.ssh/github" 1
+  check "SSH config is private" test -n "$(find "$home/.ssh/config" -perm 600)"
+  check "SSH key added to Keychain" grep -q "ssh-add --apple-use-keychain $home/.ssh/github" "$log"
+  check "gh login uses the key's scope" grep -q "gh auth login .*--skip-ssh-key --scopes admin:public_key" "$log"
+  check "SSH key added to GitHub" grep -q "gh ssh-key add $home/.ssh/github.pub --title github" "$log"
   check_not "hostname untouched by full setup" grep -q scutil "$log"
   check_not "packages not upgraded by full setup" grep -q "brew upgrade" "$log"
 
@@ -258,9 +317,15 @@ test_flow() {
   check_not "nothing re-cloned" grep -q "git clone" "$log"
   check_not "Oh My Zsh not reinstalled" grep -q "^omz " "$log"
   check "starship config left alone" has_count "$log" "starship preset" 0
+  check_not "SSH key not recreated" grep -q "ssh-keygen -t" "$log"
+  check "SSH config not duplicated" has_count "$home/.ssh/config" "IdentityFile ~/.ssh/github" 1
+  check_not "SSH config not backed up again" test -n "$(find "$home/.ssh" -name '*.backup.*')"
+  check_not "SSH key not added to Keychain again" grep -q "ssh-add --apple-use-keychain" "$log"
+  check_not "gh not used again" grep -q "^gh " "$log"
 
   # Uninstall removes it all, and can run twice.
   check "uninstall succeeds" in_sandbox bash "$REPO/uninstall.sh"
+  check "uninstall keeps SSH key" test -f "$home/.ssh/github"
   check "uninstall removes Homebrew" grep -q "sudo rm -rf /opt/homebrew/" "$log"
   check "uninstall drops pam_reattach before Homebrew" in_sandbox_order "sudo tee $home/pam.d/sudo_local" "sudo rm -rf /opt/homebrew/"
   check_not "uninstall removes pam_reattach line" grep -q pam_reattach "$home/pam.d/sudo_local"
@@ -325,6 +390,49 @@ test_flow() {
   check "config succeeds with starship config" in_sandbox bash "$REPO/setup.sh" config
   check "starship config kept" grep -q mine "$home/.config/starship.toml"
   check_not "config-only runs no installs" grep -qE "brew bundle|mise install|git clone" "$log"
+  check_not "config-only leaves SSH alone" grep -qE "ssh-keygen|ssh-add" "$log"
+
+  # An existing SSH key and config are kept, and the config gains the key.
+  new_home
+  mkdir -p "$home/.ssh"
+  echo "my key" > "$home/.ssh/github"
+  echo "my public key" > "$home/.ssh/github.pub"
+  echo "Host example.com" > "$home/.ssh/config"
+  check "SSH step succeeds with existing files" in_sandbox bash "$REPO/setup.sh" ssh
+  check_not "existing SSH key not replaced" grep -q "ssh-keygen -t" "$log"
+  check "existing SSH key kept" grep -qx "my key" "$home/.ssh/github"
+  check "existing SSH config kept" grep -qx "Host example.com" "$home/.ssh/config"
+  check "existing SSH config gains the key" has_count "$home/.ssh/config" "IdentityFile ~/.ssh/github" 1
+  check "existing SSH config backed up" grep -q example.com "$home"/.ssh/config.backup.*
+
+  # A key already on GitHub needs no gh at all.
+  new_home
+  mkdir -p "$home/.ssh"
+  : > "$home/.ssh/stub-on-github"
+  check "SSH step succeeds with key on GitHub" in_sandbox bash "$REPO/setup.sh" ssh
+  check_not "key on GitHub is not added again" grep -q "^gh " "$log"
+
+  # Logged in to gh, only the scope is missing, so there is no second login.
+  new_home
+  check "SSH step succeeds logged in" in_sandbox env FAKE_GH_LOGGED_IN=1 bash "$REPO/setup.sh" ssh
+  check "gh gains the scope" grep -q "gh auth refresh --hostname github.com --scopes admin:public_key" "$log"
+  check_not "gh not logged in twice" grep -q "gh auth login" "$log"
+  check "key added after refresh" grep -q "gh ssh-key add" "$log"
+
+  # Without a terminal, no key is created that could end up without a passphrase.
+  new_home
+  capture env FAKE_TTY_STATUS=1 bash "$REPO/setup.sh" all
+  check "no terminal does not fail the run" test "$status" -eq 0
+  check_not "no terminal creates no SSH key" grep -q "ssh-keygen" "$log"
+  check "summary says how to set up SSH" summary_has "make ssh"
+
+  # A key without a passphrase works, and gets flagged.
+  new_home
+  capture env FAKE_SSH_NO_PASSPHRASE=1 bash "$REPO/setup.sh" all
+  check "summary flags missing passphrase" summary_has "has no passphrase"
+  new_home
+  capture bash "$REPO/setup.sh" all
+  check_not "passphrase not flagged when set" summary_has "has no passphrase"
 
   # An existing real ~/.zshrc keeps its contents.
   new_home

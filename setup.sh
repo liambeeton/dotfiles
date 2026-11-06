@@ -13,6 +13,7 @@ PAM_DIR="${PAM_DIR:-/etc/pam.d}"
 PAM_REATTACH="${PAM_REATTACH:-/opt/homebrew/lib/pam/pam_reattach.so}"
 APPLICATIONS_DIR="${APPLICATIONS_DIR:-/Applications}"
 VSCODE_USER_DIR="$HOME/Library/Application Support/Code/User"
+SSH_KEY="$HOME/.ssh/github"
 
 vscode_extensions=(
   GitHub.github-vscode-theme
@@ -572,6 +573,98 @@ set_zsh_default() {
   fi
 }
 
+create_ssh_key() {
+  if [[ -f "$SSH_KEY" ]]; then
+    print_success "$SSH_KEY already exists"
+  else
+    ssh-keygen -t ed25519 -C github -f "$SSH_KEY"
+    print_success "Created $SSH_KEY"
+  fi
+
+  # An empty passphrase can only open a key that has none.
+  if ssh-keygen -y -P "" -f "$SSH_KEY" >/dev/null 2>&1; then
+    add_note "$SSH_KEY has no passphrase. To add one, run: ssh-keygen -p -f $SSH_KEY"
+  fi
+}
+
+# ~/.ssh/config is not tracked, because it can hold hosts for one machine only.
+# The key is only for GitHub, so it is not offered to every other host.
+add_ssh_config() {
+  local config="$HOME/.ssh/config"
+
+  if grep -qsF "IdentityFile ~/.ssh/github" "$config"; then
+    print_success "$config already uses the key"
+    return
+  fi
+
+  if [[ -s "$config" ]]; then
+    backup_file "$config"
+    echo >> "$config"
+  fi
+  cat >> "$config" <<'EOF'
+Host github.com
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/github
+EOF
+  chmod 600 "$config"
+  print_success "Added the key to $config"
+}
+
+add_ssh_key_to_keychain() {
+  if ssh-add -T "$SSH_KEY.pub" >/dev/null 2>&1; then
+    print_success "Key already loaded in the SSH agent"
+  else
+    ssh-add --apple-use-keychain "$SSH_KEY"
+    print_success "Added the key to the Keychain"
+  fi
+}
+
+# GitHub accepts the login and then refuses a shell, so ssh exits with an error even
+# on success, and only its message tells. Trusts GitHub's host key on first contact,
+# because BatchMode cannot ask.
+ssh_key_on_github() {
+  local output
+  output=$(ssh -T -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new git@github.com 2>&1 || true)
+  [[ "$output" == *"successfully authenticated"* ]]
+}
+
+# Only uses gh if the key is missing, so a re-run does not open a browser. Adding a
+# key needs a scope that gh does not ask for by default.
+add_ssh_key_to_github() {
+  if ssh_key_on_github; then
+    print_success "GitHub already accepts the key"
+    return
+  fi
+
+  if gh auth status --hostname github.com >/dev/null 2>&1; then
+    gh auth refresh --hostname github.com --scopes admin:public_key
+  else
+    gh auth login --web --hostname github.com --git-protocol ssh --skip-ssh-key --scopes admin:public_key
+  fi
+  gh ssh-key add "$SSH_KEY.pub" --title github
+  print_success "Added the key to GitHub"
+}
+
+# Asks for a passphrase and a browser login. Without a terminal, ssh-keygen could
+# read an empty passphrase and leave the key unprotected.
+setup_ssh() {
+  print_section "SSH"
+
+  if ! tty -s; then
+    add_note "SSH setup needs a terminal to ask for a passphrase. To set it up, run: make ssh"
+    return
+  fi
+
+  mkdir -p "$HOME/.ssh"
+  chmod 700 "$HOME/.ssh"
+
+  create_ssh_key
+  add_ssh_config
+  add_ssh_key_to_keychain
+  add_ssh_key_to_github
+}
+
 setup_tools() {
   run_step "Homebrew" install_homebrew
   load_homebrew_env
@@ -595,6 +688,7 @@ setup_configs() {
 setup_everything() {
   setup_tools
   setup_configs
+  run_step "SSH" setup_ssh
   run_step "Default shell" set_zsh_default
   run_step "macOS defaults" setup_macos_defaults
   # After the tools, because on a new machine pam_reattach only exists from then on.
@@ -720,6 +814,7 @@ Usage: ./setup.sh [step]
   brew             Install Homebrew, update it, and upgrade packages
   brew-bundle      Install what is missing from the Brewfile
   git              Link Git dotfiles
+  ssh              Create an SSH key and add it to the Keychain and GitHub
   code             Link VS Code settings and keybindings
   code-extensions  Install VS Code extensions
   ghostty          Link Ghostty config
@@ -753,6 +848,7 @@ main() {
       install_tools
       ;;
     git) setup_git ;;
+    ssh) setup_ssh ;;
     code) setup_vscode ;;
     code-extensions) install_vscode_extensions ;;
     ghostty) setup_ghostty ;;

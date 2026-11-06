@@ -14,7 +14,8 @@ UNINSTALL := $(BASH) "$(DOTFILES_DIR)/uninstall.sh"
 	ghostty-install tmux-install terminal-uninstall \
 	mise mise-uninstall \
 	zsh zsh-uninstall \
-	git-install git-uninstall
+	git-install git-uninstall \
+	ssh
 
 help:
 	@printf '%s\n' \
@@ -41,7 +42,8 @@ help:
 		'zsh               Install Oh My Zsh and plugins' \
 		'zsh-uninstall     Remove Zsh and Oh My Zsh files' \
 		'git-install       Link Git dotfiles' \
-		'git-uninstall     Remove Git dotfiles'
+		'git-uninstall     Remove Git dotfiles' \
+		'ssh               Create an SSH key and add it to the Keychain and GitHub'
 
 install:
 	$(BASH) "$(DOTFILES_DIR)/install.sh"
@@ -114,3 +116,6 @@ git-install:
 
 git-uninstall:
 	$(UNINSTALL) git
+
+ssh:
+	$(SETUP) ssh

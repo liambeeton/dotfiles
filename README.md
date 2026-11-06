@@ -6,6 +6,7 @@ Personal macOS dotfiles and bootstrap scripts. One command sets up a development
 - Touch ID for `sudo` in every terminal, including Ghostty, cmux, and tmux, the firewall, and a FileVault check
 - Homebrew, CLI packages, and GUI casks from a `Brewfile`
 - Git configuration, global ignore rules, attributes, and commit template
+- An SSH key for GitHub, stored in the Keychain and added to your account
 - VS Code settings, keybindings, and extensions
 - Zsh, Oh My Zsh, plugins, aliases, and shell paths
 - Ghostty and tmux configuration
@@ -40,6 +41,8 @@ Using this command accepts Apple's license agreement for Rosetta.
 ## Install
 
 The setup only checks FileVault and warns if it is off, because enabling it prints a recovery key you must save. To enable it, run `sudo fdesetup enable`.
+
+The first run asks for a passphrase for the new SSH key at `~/.ssh/github`, then opens a browser to log in to GitHub and add the key. Store the passphrase somewhere safe.
 
 If a step fails, the others still run. A summary at the end lists what failed and anything left for you to do, such as logging out, and the run exits with an error. Fix the cause and run it again.
 
@@ -86,6 +89,7 @@ Choose a full setup, tools only, or configuration only from a menu.
 | `make brew` | Install Homebrew, update it, and upgrade packages |
 | `make brew-bundle` | Install what is missing from the `Brewfile` |
 | `make git-install` | Link Git dotfiles |
+| `make ssh` | Create an SSH key for GitHub and add it to the Keychain and your account |
 | `make code-install` | Link VS Code settings and keybindings |
 | `make code-extensions` | Install VS Code extensions |
 | `make ghostty-install` | Link Ghostty config |
@@ -164,4 +168,4 @@ The flow tests use a throwaway `HOME` with stubs for anything that installs or c
 make uninstall
 ```
 
-This removes Homebrew and casks, VS Code user data, Git dotfiles, mise, Ghostty and tmux config, Zsh files, Oh My Zsh, and shell history, including Atuin's. Read `uninstall.sh` first: these commands permanently delete files from `$HOME` and application support directories. Use `make brew-uninstall`, `code-uninstall`, `git-uninstall`, `mise-uninstall`, `terminal-uninstall`, or `zsh-uninstall` to remove one part.
+This removes Homebrew and casks, VS Code user data, Git dotfiles, mise, Ghostty and tmux config, Zsh files, Oh My Zsh, and shell history, including Atuin's. It leaves `~/.ssh` alone, because a deleted private key cannot be recovered. Read `uninstall.sh` first: these commands permanently delete files from `$HOME` and application support directories. Use `make brew-uninstall`, `code-uninstall`, `git-uninstall`, `mise-uninstall`, `terminal-uninstall`, or `zsh-uninstall` to remove one part.
