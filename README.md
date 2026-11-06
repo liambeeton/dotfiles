@@ -2,7 +2,7 @@
 
 Personal macOS dotfiles and bootstrap scripts. One command sets up a development workstation, and re-running it only does what is missing.
 
-- macOS Finder, Dock, keyboard, text input, screenshot, and Preview defaults
+- macOS appearance, Finder, Dock, hot corner, keyboard shortcut, trackpad, text input, screenshot, and Preview defaults
 - Touch ID for `sudo` in every terminal, including Ghostty, cmux, and tmux, the firewall, and a FileVault check
 - Homebrew, CLI packages, and GUI casks from a `Brewfile`
 - Git configuration, global ignore rules, attributes, and commit template
@@ -79,9 +79,10 @@ Choose a full setup, tools only, or configuration only from a menu.
 | `make sync` | Refresh symlinks and `~/.zshrc` without installing anything |
 | `make doctor` | Report what has drifted from this repo, changing nothing |
 | `make check` | Run the test suite |
-| `make macos-defaults` | Apply macOS defaults and restart Finder and the Dock. Log out and back in for the keyboard settings |
+| `make macos-defaults` | Apply macOS defaults and restart Finder and the Dock. Log out and back in for the appearance, keyboard, and trackpad settings. This turns off the Spotlight shortcut, so set Cmd+Space in Raycast afterwards |
 | `make macos-security` | Enable Touch ID for `sudo` and the firewall, and check FileVault |
 | `make macos-hostname` | Set the computer name (not part of the full setup) |
+| `make macos-remove-apps` | Delete GarageBand, its sound library, and iMovie (not part of the full setup). Keeps the sound library if Logic Pro is installed |
 | `make brew` | Install Homebrew, update it, and upgrade packages |
 | `make brew-bundle` | Install what is missing from the `Brewfile` |
 | `make git-install` | Link Git dotfiles |
