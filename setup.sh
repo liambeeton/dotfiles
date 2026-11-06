@@ -576,8 +576,6 @@ setup_tools() {
   run_step "Homebrew" install_homebrew
   load_homebrew_env
   run_step "Brewfile packages" install_tools
-  # Again, because on a new machine pam_reattach only exists from this point on.
-  run_step "Touch ID for sudo" setup_touch_id_sudo
   run_step "VS Code extensions" install_vscode_extensions
   run_step "Oh My Zsh" install_oh_my_zsh
   run_step "tmux plugin manager" install_tmux_plugin_manager
@@ -595,11 +593,12 @@ setup_configs() {
 }
 
 setup_everything() {
-  run_step "macOS defaults" setup_macos_defaults
-  run_step "macOS security" setup_macos_security
   setup_tools
   setup_configs
   run_step "Default shell" set_zsh_default
+  run_step "macOS defaults" setup_macos_defaults
+  # After the tools, because on a new machine pam_reattach only exists from then on.
+  run_step "macOS security" setup_macos_security
 }
 
 setup_all() {

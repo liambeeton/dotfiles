@@ -228,6 +228,8 @@ test_flow() {
   check "firewall turned on" grep -q "socketfilterfw --setglobalstate on" "$log"
   check "FileVault checked" grep -q "fdesetup status" "$log"
   check_not "FileVault never enabled" grep -q "fdesetup enable" "$log"
+  check "macOS defaults come after tools" in_sandbox_order "mise install" "defaults write"
+  check "macOS security comes after defaults" in_sandbox_order "defaults write" "socketfilterfw"
   check "git config linked" links_to "$home/.gitconfig" "$REPO/git/.gitconfig"
   check "existing git config backed up" grep -q original "$home"/.gitconfig.backup.*
   check "VS Code settings linked" links_to "$home/Library/Application Support/Code/User/settings.json" "$REPO/code/settings.json"
