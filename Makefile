@@ -43,7 +43,7 @@ help:
 		'zsh-uninstall     Remove Zsh and Oh My Zsh files' \
 		'git-install       Link Git dotfiles' \
 		'git-uninstall     Remove Git dotfiles' \
-		'ssh               Create an SSH key and add it to the Keychain and GitHub'
+		'ssh               Create an SSH key for GitHub and add it to the Keychain'
 
 install:
 	$(BASH) "$(DOTFILES_DIR)/install.sh"

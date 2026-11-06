@@ -629,25 +629,16 @@ ssh_key_on_github() {
   [[ "$output" == *"successfully authenticated"* ]]
 }
 
-# Only uses gh if the key is missing, so a re-run does not open a browser. Adding a
-# key needs a scope that gh does not ask for by default.
-add_ssh_key_to_github() {
+check_ssh_key_on_github() {
   if ssh_key_on_github; then
     print_success "GitHub already accepts the key"
-    return
-  fi
-
-  if gh auth status --hostname github.com >/dev/null 2>&1; then
-    gh auth refresh --hostname github.com --scopes admin:public_key
   else
-    gh auth login --web --hostname github.com --git-protocol ssh --skip-ssh-key --scopes admin:public_key
+    add_note "GitHub does not accept the SSH key yet. To add it, run: pbcopy < $SSH_KEY.pub, then paste it at https://github.com/settings/ssh/new"
   fi
-  gh ssh-key add "$SSH_KEY.pub" --title github
-  print_success "Added the key to GitHub"
 }
 
-# Asks for a passphrase and a browser login. Without a terminal, ssh-keygen could
-# read an empty passphrase and leave the key unprotected.
+# Asks for a passphrase. Without a terminal, ssh-keygen could read an empty one and
+# leave the key unprotected.
 setup_ssh() {
   print_section "SSH"
 
@@ -662,7 +653,7 @@ setup_ssh() {
   create_ssh_key
   add_ssh_config
   add_ssh_key_to_keychain
-  add_ssh_key_to_github
+  check_ssh_key_on_github
 }
 
 setup_tools() {
@@ -814,7 +805,7 @@ Usage: ./setup.sh [step]
   brew             Install Homebrew, update it, and upgrade packages
   brew-bundle      Install what is missing from the Brewfile
   git              Link Git dotfiles
-  ssh              Create an SSH key and add it to the Keychain and GitHub
+  ssh              Create an SSH key for GitHub and add it to the Keychain
   code             Link VS Code settings and keybindings
   code-extensions  Install VS Code extensions
   ghostty          Link Ghostty config

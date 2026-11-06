@@ -158,16 +158,6 @@ echo "git@github.com: Permission denied (publickey)."
 exit 255
 STUB
 
-  # FAKE_GH_LOGGED_IN skips the login. Adding a key makes the ssh stub accept it.
-  cat > "$dir/gh" <<'STUB'
-#!/bin/sh
-echo "gh $*" >> "$STUB_LOG"
-case "$1 $2" in
-  "auth status") [ -n "${FAKE_GH_LOGGED_IN:-}" ] ;;
-  "ssh-key add") : > "$HOME/.ssh/stub-on-github" ;;
-esac
-STUB
-
   # Serves the installers that scripts pipe into a shell.
   cat > "$dir/curl" <<'STUB'
 #!/bin/sh
@@ -302,8 +292,6 @@ test_flow() {
   check "SSH config uses the key" has_count "$home/.ssh/config" "IdentityFile ~/.ssh/github" 1
   check "SSH config is private" test -n "$(find "$home/.ssh/config" -perm 600)"
   check "SSH key added to Keychain" grep -q "ssh-add --apple-use-keychain $home/.ssh/github" "$log"
-  check "gh login uses the key's scope" grep -q "gh auth login .*--skip-ssh-key --scopes admin:public_key" "$log"
-  check "SSH key added to GitHub" grep -q "gh ssh-key add $home/.ssh/github.pub --title github" "$log"
   check_not "hostname untouched by full setup" grep -q scutil "$log"
   check_not "packages not upgraded by full setup" grep -q "brew upgrade" "$log"
 
@@ -321,7 +309,6 @@ test_flow() {
   check "SSH config not duplicated" has_count "$home/.ssh/config" "IdentityFile ~/.ssh/github" 1
   check_not "SSH config not backed up again" test -n "$(find "$home/.ssh" -name '*.backup.*')"
   check_not "SSH key not added to Keychain again" grep -q "ssh-add --apple-use-keychain" "$log"
-  check_not "gh not used again" grep -q "^gh " "$log"
 
   # Uninstall removes it all, and can run twice.
   check "uninstall succeeds" in_sandbox bash "$REPO/uninstall.sh"
@@ -405,19 +392,18 @@ test_flow() {
   check "existing SSH config gains the key" has_count "$home/.ssh/config" "IdentityFile ~/.ssh/github" 1
   check "existing SSH config backed up" grep -q example.com "$home"/.ssh/config.backup.*
 
-  # A key already on GitHub needs no gh at all.
+  # A key GitHub does not accept yet leaves a note, and does not fail the run.
   new_home
-  mkdir -p "$home/.ssh"
-  : > "$home/.ssh/stub-on-github"
-  check "SSH step succeeds with key on GitHub" in_sandbox bash "$REPO/setup.sh" ssh
-  check_not "key on GitHub is not added again" grep -q "^gh " "$log"
+  capture bash "$REPO/setup.sh" all
+  check "key not on GitHub does not fail the run" test "$status" -eq 0
+  check "GitHub check trusts its host key on first contact" grep -q "ssh -T .*StrictHostKeyChecking=accept-new git@github.com" "$log"
+  check "summary says how to add the key" summary_has "https://github.com/settings/ssh/new"
 
-  # Logged in to gh, only the scope is missing, so there is no second login.
-  new_home
-  check "SSH step succeeds logged in" in_sandbox env FAKE_GH_LOGGED_IN=1 bash "$REPO/setup.sh" ssh
-  check "gh gains the scope" grep -q "gh auth refresh --hostname github.com --scopes admin:public_key" "$log"
-  check_not "gh not logged in twice" grep -q "gh auth login" "$log"
-  check "key added after refresh" grep -q "gh ssh-key add" "$log"
+  # The note goes away once GitHub accepts the key.
+  : > "$home/.ssh/stub-on-github"
+  capture bash "$REPO/setup.sh" all
+  check_not "no note for a key on GitHub" summary_has "https://github.com/settings/ssh/new"
+  check "says GitHub accepts the key" grep -q "GitHub already accepts the key" "$out"
 
   # Without a terminal, no key is created that could end up without a passphrase.
   new_home
